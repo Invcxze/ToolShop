@@ -27,4 +27,4 @@ def log_out_handler(request):
     if not request.user.is_active:
         return Response({"error": {'code': 403, "message": "Login failed"}}, status=403)
     request.user.auth_token.delete()
-    return Response({"data": {'message': "Log out"}}, status=200)
+    return Response(status=204)
