@@ -30,14 +30,14 @@ export default function Login({token, setToken}) {
             <div class="row">
                 <form onSubmit={(event) => log(event)}>
                     <div class="form-floating mb-3">
-                        <input type="email" style={error.code == 422 && error.errors.email ? {borderColor: "red"} : {}} value={email} onChange={(event) => setEmail(event.target.value)} class="form-control" id="floatingInput" placeholder="name@example.com" />
+                        <input type="email" style={error.code === 422 && error.errors.email ? {borderColor: "red"} : {}} value={email} onChange={(event) => setEmail(event.target.value)} class="form-control" id="floatingInput" placeholder="name@example.com" />
                         <label for="floatingInput">Email</label>
-                        {error.code == 422 ? error.errors.email : ''}
+                        {error.code === 422 ? error.errors.email : ''}
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" style={error.code == 422 && error.errors.password ? {borderColor: "red"} : {}} value={[pass]} onChange={(event) => setPass(event.target.value)} class="form-control" id="floatingPassword" placeholder="Password" />
+                        <input type="password" style={error.code === 422 && error.errors.password ? {borderColor: "red"} : {}} value={[pass]} onChange={(event) => setPass(event.target.value)} class="form-control" id="floatingPassword" placeholder="Password" />
                         <label for="floatingPassword">Password</label>
-                        {error.code == 422 ? error.errors.password : ''}
+                        {error.code === 422 ? error.errors.password : ''}
                     </div>
 
                     <button class="w-100 btn btn-lg btn-success mb-3" type="submit">Войти</button>

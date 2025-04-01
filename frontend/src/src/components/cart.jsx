@@ -12,9 +12,9 @@ export default function Cart({token, setToken}) {
     function sort(data) {
         let list = []
         data.forEach(product => {
-            if (!list.find(item => item.product_id == product.product_id)) {
+            if (!list.find(item => item.product_id === product.product_id)) {
                 list.push({...product, "count": 1})
-            } else list.find(item => item.product_id == product.product_id).count += 1
+            } else list.find(item => item.product_id === product.product_id).count += 1
         });
         return list
     }
@@ -34,7 +34,7 @@ export default function Cart({token, setToken}) {
 
     function plus(id) {
         setProducts(products.map(product => {
-            if (product.id == id) {
+            if (product.id === id) {
                 product.count += 1
             }
             return product
@@ -43,7 +43,7 @@ export default function Cart({token, setToken}) {
 
     function minus(id) {
         setProducts(products.map(product => {
-            if (product.id == id) {
+            if (product.id === id) {
                 product.count -= 1
             }
             return product
@@ -89,7 +89,7 @@ export default function Cart({token, setToken}) {
 </div></header><main><div class="row row-cols-1 row-cols-md-3 mb-3 text-center">{result}</div><div class="row justify-content-center gap-1">
             <h2 class="mb-5">Итоговая стоимость: {price}р.</h2>
             <button class="col-6 btn btn-lg btn-outline-secondary mb-3" type="button" onClick={() => navigate('../')}>Назад</button>
-            {products.length == 0 ? '' : <button type="button" class="col-6 btn btn-lg btn-success mb-3" onClick={() => add_order()}>Оформить заказ</button>}
+            {products.length === 0 ? '' : <button type="button" class="col-6 btn btn-lg btn-success mb-3" onClick={() => add_order()}>Оформить заказ</button>}
 
         </div></main></>
 }

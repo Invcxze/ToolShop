@@ -14,7 +14,7 @@ export default function Product({token, setToken}) {
     useEffect(() => {get()}, [])
 
     function Style(event) {
-        if (event.target.parentElement.parentElement.style.animationName == "btn") {
+        if (event.target.parentElement.parentElement.style.animationName === "btn") {
             event.target.parentElement.parentElement.style.animation = 'btn-2 1s ease-in-out'
         } else event.target.parentElement.parentElement.style.animation = 'btn 1s ease-in-out'
     }
