@@ -3,7 +3,7 @@ import { Form, Input, Button, Typography, message } from 'antd'
 import { register } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
 
-const { Title } = Typography
+const { Title, Link } = Typography
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -60,6 +60,15 @@ export default function RegisterPage() {
           </Button>
         </Form.Item>
       </Form>
+
+      <div style={{ marginTop: 10, textAlign: 'center' }}>
+        <Typography.Text>
+          Уже есть аккаунт?{' '}
+          <Link href="/login">
+            Войдите
+          </Link>
+        </Typography.Text>
+      </div>
     </div>
   )
 }

@@ -5,6 +5,8 @@ from rest_framework.status import (
     HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT,
     HTTP_403_FORBIDDEN
 )
+
+from .filters import ProductFilter
 from .models import Product, Cart, Order
 from .serializers.carts import CartSerializer
 from .serializers.orders import OrderSerializer
@@ -12,9 +14,12 @@ from .serializers.products import ProductSerializer
 from rest_framework.generics import get_object_or_404
 
 @api_view(["GET"])
-def get_list_of_products(request: Request) -> Response:
-    products = Product.objects.all()
-    return Response({"data": ProductSerializer(products, many=True).data}, status=HTTP_200_OK)
+def get_list_of_products(request):
+    # Применяем фильтры
+    product_filter = ProductFilter(request.GET, queryset=Product.objects.all())
+    products = product_filter.qs
+    serializer = ProductSerializer(products, many=True)
+    return Response({"data": serializer.data}, status=HTTP_200_OK)
 
 
 @api_view(["POST"])

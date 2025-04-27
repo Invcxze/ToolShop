@@ -1,11 +1,9 @@
-// src/pages/CartPage.tsx
 import React, { useState, useEffect } from 'react'
 import { Button, Card, Row, Col, Typography, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 const { Title, Paragraph } = Typography
 
-// Примерный тип товара
 interface Product {
   id: number
   name: string
@@ -15,7 +13,7 @@ interface Product {
 }
 
 const CartPage = () => {
-  const [cart, setCart] = useState<Product[]>([]) // Состояние для хранения товаров в корзине
+  const [cart, setCart] = useState<Product[]>([])
   const navigate = useNavigate()
 
   const fetchCart = async () => {
@@ -32,7 +30,7 @@ const CartPage = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Убедитесь, что передаете токен в формате "Bearer <token>"
+          'Authorization': `Bearer ${token}`,
         },
       });
   
@@ -41,18 +39,19 @@ const CartPage = () => {
       }
   
       const data = await response.json();
-      setCart(data);
+      setCart(data.data);
     } catch (error) {
       message.error('Ошибка при загрузке корзины');
     }
   };
+
   const handleRemoveFromCart = async (productId: number) => {
     try {
       const response = await fetch(`http://localhost:8000/api/shop/cart/${productId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`, // Добавляем токен в заголовок
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       })
 
@@ -61,13 +60,12 @@ const CartPage = () => {
       }
 
       message.success('Товар удалён из корзины')
-      setCart(cart.filter((product) => product.id !== productId)) // Убираем товар из состояния
+      setCart(cart.filter((product) => product.id !== productId))
     } catch (error) {
       message.error('Ошибка при удалении товара')
     }
   }
 
-  // Функция для оформления заказа
   const handleCheckout = async () => {
     if (cart.length === 0) {
       message.warning('Корзина пуста! Добавьте товары для оформления заказа.')
@@ -75,13 +73,13 @@ const CartPage = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/shop/checkout', {
+      const response = await fetch('http://localhost:8000/api/shop/order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ cart }), // Отправляем корзину на сервер
+        body: JSON.stringify({ cart }),
       })
 
       if (!response.ok) {
@@ -89,14 +87,13 @@ const CartPage = () => {
       }
 
       message.success('Заказ оформлен!')
-      setCart([]) // Очищаем корзину после оформления заказа
-      navigate('/orders') // Перенаправляем на страницу заказов
+      setCart([])
+      navigate('/orders')
     } catch (error) {
       message.error('Ошибка при оформлении заказа')
     }
   }
 
-  // Загружаем корзину при монтировании компонента
   useEffect(() => {
     fetchCart()
   }, [])
@@ -123,9 +120,20 @@ const CartPage = () => {
           </Col> 
         ))}
       </Row>
-      <Button type="primary" onClick={handleCheckout} style={{ marginTop: '20px' }}>
-        Оформить заказ
-      </Button>
+
+      {/* Если корзина пуста, показываем кнопку "Перейти к выбору товаров" */}
+      {cart.length === 0 ? (
+        <Button type="primary" onClick={() => navigate('/products')} style={{ marginTop: '20px' }}>
+          Перейти к выбору товаров
+        </Button>
+      ) : (
+        <>
+          {/* Если в корзине есть товары, показываем кнопку "Оформить заказ" */}
+          <Button type="primary" onClick={handleCheckout} style={{ marginTop: '20px' }}>
+            Оформить заказ
+          </Button>
+        </>
+      )}
     </div>
   )
 }

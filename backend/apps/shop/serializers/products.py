@@ -5,3 +5,6 @@ class ProductSerializer(serializers.Serializer):
     name = serializers.CharField()
     description = serializers.CharField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    category = serializers.IntegerField()
+    manufacturer = serializers.IntegerField()
+    photo = serializers.FileField()

@@ -1,5 +1,4 @@
-const BASE_URL = 'http://localhost:8000/api/users' // замени на свой бэкенд
-
+const BASE_URL = 'http://localhost:8000/api/users'
 export async function login(email: string, password: string) {
   const res = await fetch(`${BASE_URL}/login/`, {
     method: 'POST',

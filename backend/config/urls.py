@@ -17,11 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 import django
+from django.conf.urls.static import static
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("apps.urls"))
 ]
 if django.conf.settings.DEBUG:
     urlpatterns += [
-        path('silk/', include('silk.urls', namespace='silk'))
+        path('silk/', include('silk.urls', namespace='silk')),
     ]

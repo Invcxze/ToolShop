@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Form, Input, Button, Typography, message, Space } from 'antd'
+import { Form, Input, Button, Typography, message } from 'antd'
 import { login } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
 
-const { Title } = Typography
+const { Title, Link } = Typography
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const handleSubmit = async (values: any) => {
     try {
       const data = await login(values.email, values.password)
-      localStorage.setItem('token', data.token)
+      localStorage.setItem('token', data.data.user_token)
       navigate('/')
     } catch (error) {
       message.error('Ошибка входа')
@@ -51,6 +51,15 @@ export default function LoginPage() {
           </Button>
         </Form.Item>
       </Form>
+
+      <div style={{ marginTop: 10, textAlign: 'center' }}>
+        <Typography.Text>
+          Нет аккаунта?{' '}
+          <Link href="/register">
+            Зарегистрируйтесь
+          </Link>
+        </Typography.Text>
+      </div>
     </div>
   )
 }
