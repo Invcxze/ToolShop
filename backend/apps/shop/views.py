@@ -15,7 +15,6 @@ from rest_framework.generics import get_object_or_404
 
 @api_view(["GET"])
 def get_list_of_products(request):
-    # Применяем фильтры
     product_filter = ProductFilter(request.GET, queryset=Product.objects.all())
     products = product_filter.qs
     serializer = ProductSerializer(products, many=True)

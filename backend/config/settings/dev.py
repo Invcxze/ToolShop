@@ -1,15 +1,11 @@
 from .base import *
 
 DEBUG = False
-ALLOWED_HOSTS = ['your-production-domain.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'prod_db',
-        'USER': 'prod_user',
-        'PASSWORD': 'prod_password',
-        'HOST': 'prod-db-host',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'dev_db.sqlite3',
     }
 }

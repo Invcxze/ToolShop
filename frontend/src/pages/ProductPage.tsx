@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Row, Col, Typography, message, Input, Select } from 'antd'
+import { Button, Card, Row, Col, Typography, message, Input, Select, Space } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import employee from '../assets/istockphoto-1167872833-612x612.jpg'
 
 const { Title, Paragraph } = Typography
-const { Option } = Select
 
 interface Product {
   id: number
   name: string
   description: string
   price: string
-  image: string
+  photo: string | null
 }
 
 const ProductPage = () => {
@@ -30,10 +29,16 @@ const ProductPage = () => {
         if (!response.ok) {
           throw new Error('Ошибка при загрузке данных о товарах')
         }
-
         const data = await response.json()
-        setProducts(data.data)
-        setFilteredProducts(data.data)
+        const normalizedProducts: Product[] = data.data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          photo: p.photo,
+        }))
+        setProducts(normalizedProducts)
+        setFilteredProducts(normalizedProducts)
       } catch (error) {
         console.error('Ошибка при загрузке товаров:', error)
         message.error('Не удалось загрузить товары')
@@ -42,6 +47,7 @@ const ProductPage = () => {
 
     fetchProducts()
   }, [])
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value
     setSearchTerm(query)
@@ -58,21 +64,25 @@ const ProductPage = () => {
     filterProducts(searchTerm, priceRange, value)
   }
 
-  const filterProducts = async (search: string, price: [number, number], sort: string) => {
-    let filtered = products.filter(product => 
+  const filterProducts = (search: string, price: [number, number], sort: string) => {
+    let filtered = products.filter(product =>
       product.name.toLowerCase().includes(search.toLowerCase()) &&
       parseFloat(product.price) >= price[0] &&
       parseFloat(product.price) <= price[1]
     )
 
-    if (sort === 'price_asc') {
-      filtered = filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))
-    } else if (sort === 'price_desc') {
-      filtered = filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
-    } else if (sort === 'name_asc') {
-      filtered = filtered.sort((a, b) => a.name.localeCompare(b.name))
-    } else if (sort === 'name_desc') {
-      filtered = filtered.sort((a, b) => b.name.localeCompare(a.name))
+    switch (sort) {
+      case 'price_asc':
+        filtered = filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))
+        break
+      case 'price_desc':
+        filtered = filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
+        break
+      case 'name_desc':
+        filtered = filtered.sort((a, b) => b.name.localeCompare(a.name))
+        break
+      default:
+        filtered = filtered.sort((a, b) => a.name.localeCompare(b.name))
     }
 
     setFilteredProducts(filtered)
@@ -83,7 +93,7 @@ const ProductPage = () => {
       message.error('Для добавления товара в корзину нужно авторизоваться!')
       return
     }
-  
+
     try {
       const response = await fetch(`http://localhost:8000/api/shop/cart/${productId}`, {
         method: 'POST',
@@ -92,21 +102,30 @@ const ProductPage = () => {
           'Content-Type': 'application/json',
         },
       })
-  
+
       const result = await response.json()
-      console.log('Ответ от API:', result)
-  
+
       if (!response.ok) {
         throw new Error(result?.data?.message || 'Не удалось добавить товар в корзину')
       }
-  
-      // Проверяем, если в ответе есть сообщение, выводим его
+
       const msg = result?.data?.message || `Товар с ID ${productId} добавлен в корзину`
-      console.log('Уведомление:', msg)
       message.success(msg)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Ошибка при добавлении товара в корзину:', error)
       message.error(error.message || 'Ошибка при добавлении товара в корзину')
+    }
+  }
+
+  const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
+
+  const getProductImage = (product: Product) => {
+    if (!product.photo) return employee
+    try {
+      const url = new URL(product.photo)
+      return product.photo
+    } catch {
+      return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
     }
   }
 
@@ -132,38 +151,45 @@ const ProductPage = () => {
 
             <div style={{ marginBottom: '10px' }}>
               <Title level={5}>Диапазон цен</Title>
-              <Input.Group compact style={{ marginBottom: '20px' }}>
-                <Input 
-                  style={{ width: '50%' }} 
-                  type="number" 
-                  placeholder="От" 
+              <Space.Compact style={{ marginBottom: '20px' }}>
+                <Input
+                  style={{ width: '50%' }}
+                  type="number"
+                  placeholder="От"
                   value={priceRange[0]}
+                  onChange={(e) => {
+                    const valueNum = parseFloat(e.target.value)
+                    setPriceRange([isNaN(valueNum) ? 0 : valueNum, priceRange[1]])
+                  }}
                   onBlur={() => filterProducts(searchTerm, priceRange, sortOrder)}
-                  onChange={(e) => setPriceRange([parseFloat(e.target.value), priceRange[1]])}
                 />
-                <Input 
-                  style={{ width: '50%' }} 
-                  type="number" 
-                  placeholder="До" 
+                <Input
+                  style={{ width: '50%' }}
+                  type="number"
+                  placeholder="До"
                   value={priceRange[1]}
+                  onChange={(e) => {
+                    const valueNum = parseFloat(e.target.value)
+                    setPriceRange([priceRange[0], isNaN(valueNum) ? 1000 : valueNum])
+                  }}
                   onBlur={() => filterProducts(searchTerm, priceRange, sortOrder)}
-                  onChange={(e) => setPriceRange([priceRange[0], parseFloat(e.target.value)])}
                 />
-              </Input.Group>
+              </Space.Compact>
             </div>
 
             <div style={{ marginBottom: '10px' }}>
               <Title level={5}>Сортировка</Title>
               <Select
-                defaultValue="name_asc"
+                value={sortOrder}
                 style={{ width: '100%' }}
                 onChange={handleSortChange}
-              >
-                <Option value="name_asc">Сортировать по названию (A-Z)</Option>
-                <Option value="name_desc">Сортировать по названию (Z-A)</Option>
-                <Option value="price_asc">Сортировать по цене (по возрастанию)</Option>
-                <Option value="price_desc">Сортировать по цене (по убыванию)</Option>
-              </Select>
+                options={[
+                  { value: 'name_asc', label: 'Название (A-Z)' },
+                  { value: 'name_desc', label: 'Название (Z-A)' },
+                  { value: 'price_asc', label: 'Цена (возрастание)' },
+                  { value: 'price_desc', label: 'Цена (убывание)' },
+                ]}
+              />
             </div>
           </div>
         </Col>
@@ -179,7 +205,17 @@ const ProductPage = () => {
                 <Col span={8} key={product.id}>
                   <Card
                     hoverable
-                    cover={<img alt={product.name} src={employee} />}
+                    cover={
+                      <img
+                        alt={product.name}
+                        src={getProductImage(product)}
+                        style={{ height: '300px', objectFit: 'cover', width: '100%' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = employee
+                          e.currentTarget.style.objectFit = 'contain'
+                        }}
+                      />
+                    }
                     actions={[
                       token ? (
                         <Button type="primary" onClick={() => handleAddToCart(product.id)}>
@@ -187,7 +223,7 @@ const ProductPage = () => {
                         </Button>
                       ) : (
                         <Button type="default" onClick={() => navigate('/login')}>
-                          Войти для добавления в корзину
+                          Войти для добавления
                         </Button>
                       ),
                     ]}
@@ -207,3 +243,4 @@ const ProductPage = () => {
 }
 
 export default ProductPage
+
