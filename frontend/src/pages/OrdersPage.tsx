@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Collapse, Divider, List, Tag } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import employee from '../assets/istockphoto-1167872833-612x612.jpg'   // дефолтное фото
 
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
@@ -10,121 +11,112 @@ interface Product {
   name: string
   description: string
   price: string
+  photo?: string | null
 }
 
 interface Order {
   id: number
   order_price: string
   products: Product[]
-  status: string // Добавим статус заказа, например, "paid", "unpaid"
+  status: 'paid' | 'unpaid'
 }
 
-const OrdersPage = () => {
+const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const token = localStorage.getItem('token')
 
   const fetchOrders = async () => {
     if (!token) {
-      message.error('Для получения заказов нужно авторизоваться!')
+      message.error('Авторизуйтесь!')
       return
     }
-
     try {
-      const response = await fetch('http://localhost:8000/api/shop/order', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+      const res = await fetch('http://localhost:8000/api/shop/order', {
+        headers: { Authorization: `Bearer ${token}` },
       })
-
-      if (!response.ok) {
-        throw new Error('Ошибка при загрузке заказов')
-      }
-
-      const data = await response.json()
-      console.log(data)
-
-      setOrders(data.data)
-    } catch (error) {
-      console.error('Ошибка при загрузке заказов:', error)
+      if (!res.ok) throw new Error()
+      const json = await res.json()
+      setOrders(json.data)
+    } catch {
       message.error('Не удалось загрузить заказы')
     }
   }
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
+  useEffect(() => { fetchOrders() }, [])
+
+  const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
+
+  const getProductImage = (product: Product) => {
+    if (!product.photo) return employee
+    try {
+      new URL(product.photo) // абсолютный?
+      return product.photo
+    } catch {
+      return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
+    }
+  }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: 'auto', padding: '20px' }}>
+    <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
       <Title level={1}>Мои заказы</Title>
-      <Row gutter={[16, 16]}>
-        {orders.length === 0 ? (
-          <Col span={24}>
+
+      <Row>
+        <Col span={24}>
+          {orders.length === 0 ? (
             <Title level={3}>У вас нет заказов</Title>
-          </Col>
-        ) : (
-          <Col span={24}>
+          ) : (
             <Collapse accordion>
-              {orders.map((order) => (
+              {orders.map(order => (
                 <Panel
-                  header={`Заказ №${order.id} - ${order.status === 'paid' ? 'Оплачен' : 'Не оплачен'}`}
                   key={order.id}
+                  header={`Заказ №${order.id}`}
                   extra={<span>Общая цена: ${order.order_price}</span>}
-                  showArrow={false}
-                  style={{ marginBottom: '16px' }}
                 >
-                  <Card
-                    style={{ backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}
-                    bordered={false}
-                  >
-                    <Paragraph>
-                      <strong>Статус заказа: </strong>
-                      {order.status === 'paid' ? (
-                        <Tag color="green" icon={<CheckCircleOutlined />}>
-                          Оплачен
-                        </Tag>
-                      ) : (
-                        <Tag color="red" icon={<CloseCircleOutlined />}>
-                          Не оплачен
-                        </Tag>
-                      )}
-                    </Paragraph>
-                    <Paragraph>
-                      <strong>Общая цена: </strong> ${order.order_price}
-                    </Paragraph>
-                    <Divider />
-                    <Title level={4}>Товары в заказе:</Title>
-                    <List
-                      dataSource={order.products}
-                      renderItem={(product) => (
-                        <List.Item>
-                          <Card
-                            style={{
-                              padding: '10px',
-                              borderRadius: '8px',
-                              backgroundColor: '#fff',
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                              width: '100%',
+                  <Paragraph>
+                    <strong>Статус: </strong>
+                    {order.status === 'paid' ? (
+                      <Tag color="green" icon={<CheckCircleOutlined />}>Оплачен</Tag>
+                    ) : (
+                      <Tag color="red" icon={<CloseCircleOutlined />}>Не оплачен</Tag>
+                    )}
+                  </Paragraph>
+
+                  <Divider />
+                  <Title level={4}>Товары:</Title>
+
+                  <List
+                    dataSource={order.products}
+                    renderItem={p => (
+                      <List.Item>
+                        <Card style={{ width: '100%', display: 'flex', gap: 16 }}>
+                          <img
+                            src={getProductImage(p)}
+                            alt={p.name}
+                            style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 8 }}
+                            onError={e => {
+                              (e.currentTarget as HTMLImageElement).src = employee
+                              e.currentTarget.style.objectFit = 'contain'
                             }}
-                          >
-                            <Title level={5}>{product.name}</Title>
-                            <Paragraph>{product.description}</Paragraph>
-                            <Paragraph>
-                              <strong>Цена: </strong> ${product.price}
-                            </Paragraph>
-                          </Card>
-                        </List.Item>
-                      )}
-                    />
-                  </Card>
+                          />
+                          <div>
+                            <Title level={5}>{p.name}</Title>
+                            <Paragraph>{p.description}</Paragraph>
+                            <Paragraph>Цена: ${p.price}</Paragraph>
+                          </div>
+                        </Card>
+                      </List.Item>
+                    )}
+                  />
                 </Panel>
               ))}
             </Collapse>
-          </Col>
-        )}
+          )}
+        </Col>
       </Row>
-      <Button type="primary" onClick={fetchOrders}>Загрузить заказы</Button>
+
+      <Button type="primary" onClick={fetchOrders} style={{ marginTop: 20 }}>
+        Обновить
+      </Button>
     </div>
   )
 }

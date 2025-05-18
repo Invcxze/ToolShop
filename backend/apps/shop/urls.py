@@ -7,6 +7,8 @@ from .views import (
     get_list_of_products_from_cart,
     add_or_delete_product_from_cart,
     get_list_of_products_from_order,
+    payment_status,
+    stripe_webhook,
 )
 
 urlpatterns = [
@@ -16,4 +18,6 @@ urlpatterns = [
     path("cart", get_list_of_products_from_cart),
     path("cart/<int:pk>", add_or_delete_product_from_cart),
     path("order", get_list_of_products_from_order),
+    path("payment-status/<str:session_id>", payment_status),
+    path("stripe/webhook", stripe_webhook),
 ]

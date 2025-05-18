@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,6 +39,8 @@ INSTALLED_APPS = [
     "apps.shop",
     "corsheaders",
     "storages",
+    "payments.core",
+    "django.contrib.sites",
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,11 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_USE_SSL = False
 AWS_S3_VERIFY = False
+
+STRIPE_TEST_PUBLIC_KEY = 'pk_test_51ROE3JPOV9fDpeeQUFMBMDhmUrDJToH8tSvhX2EezbzyVRGtxXKEflFU9rQUA73EF8Qh4oeL5R99ISQML3xv3JMT00bCD3owYo'
+STRIPE_TEST_SECRET_KEY = 'sk_test_51ROE3JPOV9fDpeeQjdXrjbcSwi4bJ7CU7HYDuoHm9HOmfqqgFm2KqjvIdWzuZY5ABP8yfRiHkS93KPymrIGWUpgB00xKDdl0So'
+
+SITE_ID = 1
+PAYMENT_HOST = "localhost:8000"
+PAYMENT_PROTOCOL = "http"
+STRIPE_WEBHOOK_SECRET = "whsec_4c7cb0bc16a35f6bc65f139d2b2af2aa21552a4e7890bce7d70b5994d25ae8b1"

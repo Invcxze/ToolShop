@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import employee from '../assets/istockphoto-1167872833-612x612.jpg' // заглушка для фото
 
 const { Title, Paragraph } = Typography
 
@@ -8,131 +9,138 @@ interface Product {
   id: number
   name: string
   description: string
-  price: number
-  image: string
+  price: string
+  photo: string | null
 }
 
-const CartPage = () => {
+const CartPage: React.FC = () => {
   const [cart, setCart] = useState<Product[]>([])
   const navigate = useNavigate()
+  const token = localStorage.getItem('token')
 
-  const fetchCart = async () => {
-    const token = localStorage.getItem('token');
-  
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!token) {
+        message.error('Пожалуйста, войдите в систему')
+        navigate('/login')
+        return
+      }
+
+      try {
+        const res = await fetch('http://localhost:8000/api/shop/cart', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok) throw new Error()
+        const json = await res.json()
+        setCart(json.data)
+      } catch {
+        message.error('Ошибка при загрузке корзины')
+      }
+    }
+    fetchCart()
+  }, [navigate, token])
+
+  const handleRemoveFromCart = async (id: number) => {
     if (!token) {
-      message.error('Пожалуйста, войдите в систему');
-      navigate('/login');
-      return;
+      message.error('Пожалуйста, войдите в систему')
+      navigate('/login')
+      return
     }
-  
     try {
-      const response = await fetch('http://localhost:8000/api/shop/cart', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error('Не удалось загрузить данные корзины');
-      }
-  
-      const data = await response.json();
-      setCart(data.data);
-    } catch (error) {
-      message.error('Ошибка при загрузке корзины');
-    }
-  };
-
-  const handleRemoveFromCart = async (productId: number) => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/shop/cart/${productId}`, {
+      const res = await fetch(`http://localhost:8000/api/shop/cart/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
-
-      if (!response.ok) {
-        throw new Error('Не удалось удалить товар из корзины')
-      }
-
+      if (!res.ok) throw new Error()
+      setCart(prev => prev.filter(p => p.id !== id))
       message.success('Товар удалён из корзины')
-      setCart(cart.filter((product) => product.id !== productId))
-    } catch (error) {
+    } catch {
       message.error('Ошибка при удалении товара')
     }
   }
 
   const handleCheckout = async () => {
-    if (cart.length === 0) {
-      message.warning('Корзина пуста! Добавьте товары для оформления заказа.')
+    if (!token) {
+      message.error('Пожалуйста, войдите в систему')
+      navigate('/login')
       return
     }
-
+    if (cart.length === 0) {
+      message.warning('Корзина пуста!')
+      return
+    }
     try {
-      const response = await fetch('http://localhost:8000/api/shop/order', {
+      const res = await fetch('http://localhost:8000/api/shop/order', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ cart }),
+        headers: { Authorization: `Bearer ${token}` },
       })
-
-      if (!response.ok) {
-        throw new Error('Ошибка при оформлении заказа')
-      }
-
-      message.success('Заказ оформлен!')
-      setCart([])
-      navigate('/orders')
-    } catch (error) {
+      if (!res.ok) throw new Error()
+      const { data } = await res.json()
+      window.location.href = data.checkout_url
+    } catch {
       message.error('Ошибка при оформлении заказа')
     }
   }
 
-  useEffect(() => {
-    fetchCart()
-  }, [])
+  const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
+
+  const getProductImage = (product: Product) => {
+    if (!product.photo) return employee
+    try {
+      new URL(product.photo)
+      return product.photo
+    } catch {
+      return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
+    }
+  }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: 'auto', padding: '20px' }}>
+    <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
       <Title level={1}>Корзина</Title>
+
       <Row gutter={[16, 16]}>
-        {cart.map((product) => (
-          <Col span={8} key={product.id}>
-            <Card
-              hoverable
-              cover={<img alt={product.name} src={product.image} />}
-              actions={[
-                <Button type="primary" danger onClick={() => handleRemoveFromCart(product.id)}>
-                  Удалить из корзины
-                </Button>,
-              ]}
-            >
-              <Title level={4}>{product.name}</Title>
-              <Paragraph>{product.description}</Paragraph>
-              <Paragraph>Цена: ${product.price}</Paragraph>
-            </Card>
-          </Col> 
-        ))}
+        {cart.length === 0 ? (
+          <Col span={24}>
+            <Title level={3}>Корзина пуста</Title>
+            <Button type="primary" onClick={() => navigate('/products')} style={{ marginTop: 20 }}>
+              Перейти к товарам
+            </Button>
+          </Col>
+        ) : (
+          cart.map(product => (
+            <Col span={8} key={product.id}>
+              <Card
+                hoverable
+                cover={
+                  <img
+                    alt={product.name}
+                    src={getProductImage(product)}
+                    style={{ objectFit: 'contain', height: 200, width: '100%', backgroundColor: '#f0f0f0' }}
+                    onError={e => {
+                      ;(e.target as HTMLImageElement).src = employee
+                      e.currentTarget.style.objectFit = 'contain'
+                    }}
+                  />
+                }
+                actions={[
+                  <Button danger onClick={() => handleRemoveFromCart(product.id)} key="delete">
+                    Удалить
+                  </Button>,
+                ]}
+              >
+                <Title level={4}>{product.name}</Title>
+                <Paragraph>{product.description}</Paragraph>
+                <Paragraph>Цена: ${parseFloat(product.price).toFixed(2)}</Paragraph>
+              </Card>
+            </Col>
+          ))
+        )}
       </Row>
 
-      {/* Если корзина пуста, показываем кнопку "Перейти к выбору товаров" */}
-      {cart.length === 0 ? (
-        <Button type="primary" onClick={() => navigate('/products')} style={{ marginTop: '20px' }}>
-          Перейти к выбору товаров
+      {cart.length > 0 && (
+        <Button type="primary" onClick={handleCheckout} style={{ marginTop: 20 }}>
+          Оформить заказ
         </Button>
-      ) : (
-        <>
-          {/* Если в корзине есть товары, показываем кнопку "Оформить заказ" */}
-          <Button type="primary" onClick={handleCheckout} style={{ marginTop: '20px' }}>
-            Оформить заказ
-          </Button>
-        </>
       )}
     </div>
   )
