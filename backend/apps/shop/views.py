@@ -24,6 +24,11 @@ def get_list_of_products(request):
     serializer = ProductSerializer(products, many=True)
     return Response({"data": serializer.data}, status=HTTP_200_OK)
 
+@api_view(["GET"])
+def get_detail_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    serializer = ProductSerializer(product)
+    return Response({"data": serializer.data}, status=HTTP_200_OK)
 
 @api_view(["POST"])
 def create_product(request: Request) -> Response:

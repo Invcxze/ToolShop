@@ -9,11 +9,13 @@ from .views import (
     get_list_of_products_from_order,
     payment_status,
     stripe_webhook,
+    get_detail_product,
 )
 
 urlpatterns = [
     path("products", get_list_of_products),
     path("product", create_product),
+    path("product/<int:product_id>", get_detail_product),
     path("product/<int:pk>", update_or_delete_product),
     path("cart", get_list_of_products_from_cart),
     path("cart/<int:pk>", add_or_delete_product_from_cart),

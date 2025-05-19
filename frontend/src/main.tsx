@@ -12,6 +12,7 @@ import CartPage from './pages/CartPage'
 import OrdersPage from './pages/OrdersPage'
 import ProductPage from './pages/ProductPage'
 import Header from './components/header'
+import ProductDetailPage from './pages/ProductDetailPage'
 
 message.config({
   top: 100,
@@ -32,6 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/products" element={<ProductPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/orders" element={<OrdersPage />} />

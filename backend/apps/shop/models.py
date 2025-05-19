@@ -4,6 +4,8 @@ from apps.users.models import User
 
 from config.storages import MinIOMediaStorage
 
+from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=255)
@@ -40,3 +42,20 @@ class Order(models.Model):
     order_price = models.PositiveIntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="unpaid")
 
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user    = models.ForeignKey(User, on_delete=models.CASCADE)
+    text    = models.TextField()
+
+    grade   = models.DecimalField(
+        max_digits=2,
+        decimal_places=1,
+        validators=[
+            MinValueValidator(Decimal('0.0')),
+            MaxValueValidator(Decimal('5.0')),
+        ],
+        help_text='Оценка от 0.0 до 5.0 с шагом 0.1',
+    )
+
+    def __str__(self):
+        return f'{self.user}: {self.grade}'
