@@ -13,8 +13,7 @@ import {
   Tag,
 } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import employee from '../assets/istockphoto-1167872833-612x612.jpg' // дефолтное фото
-
+import employee from '../assets/tools.jpg'
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
 

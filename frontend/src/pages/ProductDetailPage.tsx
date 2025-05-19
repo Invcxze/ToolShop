@@ -21,8 +21,7 @@ import {
   TagOutlined,
   HomeOutlined,
 } from '@ant-design/icons'
-import employee from '../assets/istockphoto-1167872833-612x612.jpg'
-
+import employee from '../assets/tools.jpg'
 const { Title, Paragraph, Text } = Typography
 
 interface UserBrief {

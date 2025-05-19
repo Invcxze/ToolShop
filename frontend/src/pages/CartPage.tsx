@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import employee from '../assets/istockphoto-1167872833-612x612.jpg'
+import employee from '../assets/tools.jpg'
 
 const { Title, Paragraph } = Typography
 

@@ -5,11 +5,9 @@ import {
   Input, Select, Space, Tag
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import employee from "../assets/istockphoto-1167872833-612x612.jpg";
-
+import employee from '../assets/tools.jpg'
 const { Title, Paragraph } = Typography;
 
-/* ---------- типы ---------- */
 interface Product {
   id: number;
   name: string;
