@@ -1,22 +1,22 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.status import (
-    HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT,
-    HTTP_403_FORBIDDEN
-)
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_403_FORBIDDEN
 import stripe
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from .filters import ProductFilter
-from .models import Product, Cart, Order
+from .models import Product, Cart, Order, Review
 from .serializers.carts import CartSerializer
 from .serializers.orders import OrderSerializer
+from .serializers.product import ReviewSerializer
 from .serializers.products import ProductSerializer
 from rest_framework.generics import get_object_or_404
 
 stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+
+
 @api_view(["GET"])
 def get_list_of_products(request):
     product_filter = ProductFilter(request.GET, queryset=Product.objects.all())
@@ -24,11 +24,34 @@ def get_list_of_products(request):
     serializer = ProductSerializer(products, many=True)
     return Response({"data": serializer.data}, status=HTTP_200_OK)
 
+
 @api_view(["GET"])
 def get_detail_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     serializer = ProductSerializer(product)
     return Response({"data": serializer.data}, status=HTTP_200_OK)
+
+
+@api_view(["POST"])
+def create_review(request):
+    serializer = ReviewSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    review = serializer.save()
+    return Response(ReviewSerializer(review).data, status=HTTP_201_CREATED)
+
+
+@api_view(["DELETE", "PATCH"])
+def manage_reviews(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    if request.method == "PATCH":
+        serializer = ReviewSerializer(data=request.data, partial=True, instance=review)
+        serializer.is_valid(raise_exception=True)
+        review = serializer.save()
+        return Response(ReviewSerializer(review).data, status=HTTP_200_OK)
+    if request.method == "DELETE":
+        review.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
 
 @api_view(["POST"])
 def create_product(request: Request) -> Response:
@@ -55,6 +78,7 @@ def update_or_delete_product(request: Request, pk: int) -> Response:
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response({"data": serializer.data}, status=HTTP_200_OK)
+
 
 @api_view(["GET"])
 def get_list_of_products_from_cart(request: Request) -> Response:
@@ -83,7 +107,6 @@ def add_or_delete_product_from_cart(request: Request, pk: int) -> Response:
     return Response(status=HTTP_204_NO_CONTENT)
 
 
-
 @api_view(["GET", "POST"])
 def get_list_of_products_from_order(request: Request) -> Response:
     if not request.user.is_authenticated or request.user.is_staff:
@@ -101,19 +124,21 @@ def get_list_of_products_from_order(request: Request) -> Response:
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            line_items=[{
-                "price_data": {
-                    "currency": "usd",
-                    "product_data": {
-                        "name": f"Заказ #{order.id}",
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "usd",
+                        "product_data": {
+                            "name": f"Заказ #{order.id}",
+                        },
+                        "unit_amount": int(order_price * 100),
                     },
-                    "unit_amount": int(order_price * 100),
-                },
-                "quantity": 1,
-            }],
+                    "quantity": 1,
+                }
+            ],
             mode="payment",
-            success_url='http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url='http://localhost:5173/cancel',
+            success_url="http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url="http://localhost:5173/cancel",
             metadata={"order_id": order.id},
             customer_email=request.user.email,
         )
@@ -122,20 +147,23 @@ def get_list_of_products_from_order(request: Request) -> Response:
 
     cart.delete()
 
-    return Response({
-        "data": {
-            "order_id": order.id,
-            "checkout_session_id": checkout_session.id,
-            "checkout_url": checkout_session.url,
-            "message": "Заказ создан и платеж инициирован"
-        }
-    }, status=HTTP_201_CREATED)
+    return Response(
+        {
+            "data": {
+                "order_id": order.id,
+                "checkout_session_id": checkout_session.id,
+                "checkout_url": checkout_session.url,
+                "message": "Заказ создан и платеж инициирован",
+            }
+        },
+        status=HTTP_201_CREATED,
+    )
+
 
 @api_view(["GET"])
 def payment_status(request: Request, session_id: str) -> Response:
     if not request.user.is_authenticated or request.user.is_staff:
-        return Response({"error": {"code": 403, "message": "Forbidden"}},
-                        status=HTTP_403_FORBIDDEN)
+        return Response({"error": {"code": 403, "message": "Forbidden"}}, status=HTTP_403_FORBIDDEN)
 
     try:
         session = stripe.checkout.Session.retrieve(session_id, expand=["payment_status"])
@@ -159,11 +187,7 @@ def stripe_webhook(request):
     webhook_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload=payload,
-            sig_header=sig_header,
-            secret=webhook_secret
-        )
+        event = stripe.Webhook.construct_event(payload=payload, sig_header=sig_header, secret=webhook_secret)
     except ValueError:
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError:

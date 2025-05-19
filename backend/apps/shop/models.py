@@ -7,11 +7,14 @@ from config.storages import MinIOMediaStorage
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 
+
 class Manufacturer(models.Model):
     name = models.CharField(max_length=255)
 
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
+
 
 class Product(models.Model):
     name = models.CharField(max_length=150)
@@ -19,9 +22,7 @@ class Product(models.Model):
     price = models.PositiveIntegerField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, null=True, blank=True)
-    photo = models.ImageField(
-        upload_to="product_photos/", null=True, blank=True, storage=MinIOMediaStorage()
-    )
+    photo = models.ImageField(upload_to="product_photos/", null=True, blank=True, storage=MinIOMediaStorage())
 
     def __str__(self):
         return self.name
@@ -42,20 +43,21 @@ class Order(models.Model):
     order_price = models.PositiveIntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="unpaid")
 
+
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    user    = models.ForeignKey(User, on_delete=models.CASCADE)
-    text    = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
 
-    grade   = models.DecimalField(
+    grade = models.DecimalField(
         max_digits=2,
         decimal_places=1,
         validators=[
-            MinValueValidator(Decimal('0.0')),
-            MaxValueValidator(Decimal('5.0')),
+            MinValueValidator(Decimal("0.0")),
+            MaxValueValidator(Decimal("5.0")),
         ],
-        help_text='Оценка от 0.0 до 5.0 с шагом 0.1',
+        help_text="Оценка от 0.0 до 5.0 с шагом 0.1",
     )
 
     def __str__(self):
-        return f'{self.user}: {self.grade}'
+        return f"{self.user}: {self.grade}"

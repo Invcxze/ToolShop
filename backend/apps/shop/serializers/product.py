@@ -1,9 +1,17 @@
 from rest_framework import serializers
+
+
+class UserSerializer(serializers.Serializer):
+    fio = serializers.CharField()
+
+
 class ReviewSerializer(serializers.Serializer):
     text = serializers.CharField()
     grade = serializers.DecimalField()
+    user = UserSerializer(required=False)
 
-class ProductSerializer(serializers.Serializer):
+
+class ProductDetailSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     description = serializers.CharField()
@@ -11,3 +19,4 @@ class ProductSerializer(serializers.Serializer):
     category = serializers.IntegerField()
     manufacturer = serializers.IntegerField()
     photo = serializers.FileField()
+    reviews = ReviewSerializer(many=True)

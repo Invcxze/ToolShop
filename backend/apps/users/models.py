@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db import models
 
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -33,9 +34,11 @@ class User(AbstractUser, PermissionsMixin):
     username = None
     email = models.EmailField(unique=True)
     fio = models.CharField(max_length=120)
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     objects = UserManager()
-    REQUIRED_FIELDS = ['fio', ]
+    REQUIRED_FIELDS = [
+        "fio",
+    ]
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
