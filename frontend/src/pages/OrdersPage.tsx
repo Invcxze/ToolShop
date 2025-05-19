@@ -1,4 +1,3 @@
-// src/pages/OrdersPage.tsx
 import React, { useEffect, useState } from 'react'
 import {
   Button,
@@ -13,7 +12,7 @@ import {
   Tag,
 } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import employee from '../assets/tools.jpg'
+import default_product_photo from '../assets/tools.jpg'
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
 
@@ -67,7 +66,7 @@ const OrdersPage: React.FC = () => {
   const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
 
   const getProductImage = (product: Product) => {
-    if (!product.photo) return employee
+    if (!product.photo) return default_product_photo
     try {
       new URL(product.photo)
       return product.photo
@@ -132,7 +131,7 @@ const OrdersPage: React.FC = () => {
                               flexShrink: 0,
                             }}
                             onError={e => {
-                              ;(e.currentTarget as HTMLImageElement).src = employee
+                              ;(e.currentTarget as HTMLImageElement).src = default_product_photo
                               e.currentTarget.style.objectFit = 'contain'
                             }}
                           />

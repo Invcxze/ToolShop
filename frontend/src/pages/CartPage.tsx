@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import employee from '../assets/tools.jpg'
+import default_product_photo from '../assets/tools.jpg'
 
 const { Title, Paragraph } = Typography
 
@@ -85,7 +85,7 @@ const CartPage: React.FC = () => {
 
   const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
   const getProductImage = (product: Product) => {
-    if (!product.photo) return employee
+    if (!product.photo) return default_product_photo
     try {
       new URL(product.photo)
       return product.photo
@@ -124,7 +124,7 @@ const CartPage: React.FC = () => {
                       backgroundColor: '#f0f0f0',
                     }}
                     onError={e => {
-                      ;(e.currentTarget as HTMLImageElement).src = employee
+                      ;(e.currentTarget as HTMLImageElement).src = default_product_photo
                       e.currentTarget.style.objectFit = 'contain'
                     }}
                   />

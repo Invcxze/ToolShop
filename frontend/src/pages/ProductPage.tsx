@@ -1,11 +1,10 @@
-// src/pages/ProductPage.tsx
 import React, { useEffect, useState } from "react";
 import {
   Button, Card, Row, Col, Typography, message,
   Input, Select, Space, Tag
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import employee from '../assets/tools.jpg'
+import default_product_photo from '../assets/tools.jpg'
 const { Title, Paragraph } = Typography;
 
 interface Product {
@@ -21,7 +20,7 @@ interface Product {
 /* ---------- utils ---------- */
 const S3_BASE_URL = "http://localhost:9000/local-bucket-shop/media";
 const getProductImage = (p: Product) => {
-  if (!p.photo) return employee;
+  if (!p.photo) return default_product_photo;
   try {
     new URL(p.photo);
     return p.photo;
@@ -246,7 +245,7 @@ const ProductPage: React.FC = () => {
                         alt={p.name}
                         style={{ width: "100%", height: 260, objectFit: "cover" }}
                         onError={e => {
-                          (e.currentTarget as HTMLImageElement).src = employee;
+                          (e.currentTarget as HTMLImageElement).src = default_product_photo;
                           e.currentTarget.style.objectFit = "contain";
                         }}
                       />

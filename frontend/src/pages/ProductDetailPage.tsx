@@ -21,7 +21,7 @@ import {
   TagOutlined,
   HomeOutlined,
 } from '@ant-design/icons'
-import employee from '../assets/tools.jpg'
+import default_product_photo from '../assets/tools.jpg'
 const { Title, Paragraph, Text } = Typography
 
 interface UserBrief {
@@ -56,7 +56,7 @@ const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
 
 const getProductImage = (photo: string | null): string =>
   !photo
-    ? employee
+    ? default_product_photo
     : (() => {
         try {
           new URL(photo)
@@ -173,7 +173,7 @@ const ProductDetailPage: React.FC = () => {
               src={getProductImage(product.photo)}
               alt={product.name}
               style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', borderRadius: 16 }}
-              onError={e => ((e.currentTarget as HTMLImageElement).src = employee)}
+              onError={e => ((e.currentTarget as HTMLImageElement).src = default_product_photo)}
             />
           </Col>
 
@@ -256,7 +256,7 @@ const ProductDetailPage: React.FC = () => {
                       objectFit: 'cover',
                       borderRadius: 16,
                     }}
-                    onError={e => ((e.currentTarget as HTMLImageElement).src = employee)}
+                    onError={e => ((e.currentTarget as HTMLImageElement).src = default_product_photo)}
                     onClick={() => navigate(`/product/${recProd.id}`)}
                   />
                 }
