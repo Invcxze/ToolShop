@@ -1,4 +1,3 @@
-// src/pages/CartPage.tsx
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
@@ -6,24 +5,21 @@ import employee from '../assets/istockphoto-1167872833-612x612.jpg'
 
 const { Title, Paragraph } = Typography
 
-/* ---------- типы ---------- */
 interface Product {
   id: number
   name: string
   description: string
   price: string
   photo: string | null
-  category?: string | null      // ← добавлено
-  manufacturer?: string | null  // ← добавлено
+  category?: string | null
+  manufacturer?: string | null
 }
 
-/* ---------- страница ---------- */
 const CartPage: React.FC = () => {
   const [cart, setCart] = useState<Product[]>([])
   const navigate = useNavigate()
   const token = localStorage.getItem('token')
 
-  /* загрузка корзины */
   useEffect(() => {
     const fetchCart = async () => {
       if (!token) {
@@ -43,10 +39,8 @@ const CartPage: React.FC = () => {
       }
     }
     fetchCart()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  /* удалить товар */
   const handleRemoveFromCart = async (id: number) => {
     if (!token) {
       message.error('Пожалуйста, войдите в систему')
@@ -66,7 +60,6 @@ const CartPage: React.FC = () => {
     }
   }
 
-  /* оформить заказ */
   const handleCheckout = async () => {
     if (!token) {
       message.error('Пожалуйста, войдите в систему')
@@ -90,7 +83,6 @@ const CartPage: React.FC = () => {
     }
   }
 
-  /* utils */
   const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
   const getProductImage = (product: Product) => {
     if (!product.photo) return employee
@@ -102,7 +94,6 @@ const CartPage: React.FC = () => {
     }
   }
 
-  /* ---------- render ---------- */
   return (
     <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
       <Title level={1}>Корзина</Title>
@@ -146,7 +137,6 @@ const CartPage: React.FC = () => {
               >
                 <Title level={4}>{product.name}</Title>
 
-                {/* категория / производитель */}
                 <div style={{ marginBottom: 8 }}>
                   {product.category && (
                     <Tag color="blue" style={{ marginRight: 4 }}>
