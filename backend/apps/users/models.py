@@ -42,3 +42,8 @@ class User(AbstractUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Пользователя"
+        verbose_name_plural = "Пользователи"
+        ordering = ["email"]
