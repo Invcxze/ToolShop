@@ -14,7 +14,6 @@ from .serializers.product import ReviewSerializer, RecentProductSerializer, Prod
 from .serializers.products import ProductSerializer
 from rest_framework.generics import get_object_or_404
 
-from ..users.models import User
 
 stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 
@@ -143,8 +142,8 @@ def get_list_of_products_from_order(request: Request) -> Response:
                 }
             ],
             mode="payment",
-            success_url="http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url="http://localhost:5173/cancel",
+            success_url="http://localhost:5173/orders",
+            cancel_url="http://localhost:5173/cart",
             metadata={"order_id": order.id},
             customer_email=request.user.email,
         )
@@ -216,5 +215,4 @@ def get_recent_products(request):
     if not request.user.is_authenticated or request.user.is_staff:
         return Response({"error": {"code": 403, "message": "Forbidden"}}, status=HTTP_403_FORBIDDEN)
     recent_produtcs = RecentProduct.objects.filter(user=request.user)
-    print(recent_produtcs, "ssds")
     return Response(RecentProductSerializer(recent_produtcs, many=True).data, status=HTTP_200_OK)
