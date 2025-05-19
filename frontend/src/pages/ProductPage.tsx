@@ -1,3 +1,4 @@
+// src/pages/ProductPage.tsx
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Input, Select, Space } from 'antd'
 import { useNavigate } from 'react-router-dom'
@@ -5,6 +6,7 @@ import employee from '../assets/istockphoto-1167872833-612x612.jpg'
 
 const { Title, Paragraph } = Typography
 
+/* ---------- типы ---------- */
 interface Product {
   id: number
   name: string
@@ -13,6 +15,7 @@ interface Product {
   photo: string | null
 }
 
+/* ---------- utils ---------- */
 const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
 
 const getProductImage = (product: Product): string => {
@@ -25,6 +28,7 @@ const getProductImage = (product: Product): string => {
   }
 }
 
+/* ---------- страница ---------- */
 const ProductPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
@@ -35,6 +39,7 @@ const ProductPage: React.FC = () => {
   const navigate = useNavigate()
   const token = localStorage.getItem('token')
 
+  /* загрузка товаров */
   useEffect(() => {
     ;(async () => {
       try {
@@ -56,6 +61,7 @@ const ProductPage: React.FC = () => {
     })()
   }, [])
 
+  /* фильтрация + сортировка */
   const filterProducts = (search: string, price: [number, number], sort: string) => {
     let result = products.filter(
       p =>
@@ -80,6 +86,7 @@ const ProductPage: React.FC = () => {
     setFilteredProducts(result)
   }
 
+  /* добавить в корзину */
   const handleAddToCart = async (id: number) => {
     if (!token) {
       message.error('Для добавления товара в корзину нужно авторизоваться!')
@@ -97,10 +104,12 @@ const ProductPage: React.FC = () => {
     }
   }
 
+  /* ---------- render ---------- */
   return (
     <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
       <Title level={1}>Товары</Title>
 
+      {/* поиск */}
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Input
@@ -115,33 +124,33 @@ const ProductPage: React.FC = () => {
         </Col>
       </Row>
 
+      {/* фильтры и список */}
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        {/* фильтры */}
         <Col span={6}>
           <div style={{ border: '1px solid #e8e8e8', borderRadius: 8, padding: 20 }}>
             <Title level={4}>Фильтры</Title>
 
+            {/* диапазон цен */}
             <Title level={5}>Диапазон цен</Title>
             <Space.Compact style={{ marginBottom: 20 }}>
               <Input
                 type="number"
                 placeholder="От"
                 value={priceRange[0]}
-                onChange={e =>
-                  setPriceRange([Number(e.target.value) || 0, priceRange[1]])
-                }
+                onChange={e => setPriceRange([Number(e.target.value) || 0, priceRange[1]])}
                 onBlur={() => filterProducts(searchTerm, priceRange, sortOrder)}
               />
               <Input
                 type="number"
                 placeholder="До"
                 value={priceRange[1]}
-                onChange={e =>
-                  setPriceRange([priceRange[0], Number(e.target.value) || 1000])
-                }
+                onChange={e => setPriceRange([priceRange[0], Number(e.target.value) || 1000])}
                 onBlur={() => filterProducts(searchTerm, priceRange, sortOrder)}
               />
             </Space.Compact>
 
+            {/* сортировка */}
             <Title level={5}>Сортировка</Title>
             <Select
               value={sortOrder}
@@ -160,6 +169,7 @@ const ProductPage: React.FC = () => {
           </div>
         </Col>
 
+        {/* список товаров */}
         <Col span={18}>
           <Row gutter={[16, 16]}>
             {filteredProducts.length === 0 ? (
@@ -178,7 +188,7 @@ const ProductPage: React.FC = () => {
                         alt={p.name}
                         style={{ width: '100%', height: 300, objectFit: 'cover' }}
                         onError={e => {
-                          (e.currentTarget as HTMLImageElement).src = employee
+                          ;(e.currentTarget as HTMLImageElement).src = employee
                           e.currentTarget.style.objectFit = 'contain'
                         }}
                       />
@@ -207,7 +217,14 @@ const ProductPage: React.FC = () => {
                     ]}
                   >
                     <Title level={4}>{p.name}</Title>
-                    <Paragraph>{p.description}</Paragraph>
+
+                    <Paragraph
+                      ellipsis={{ rows: 2 }}
+                      style={{ minHeight: 48 }}
+                    >
+                      {p.description}
+                    </Paragraph>
+
                     <Paragraph>Цена: ${p.price}</Paragraph>
                   </Card>
                 </Col>

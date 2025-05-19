@@ -1,7 +1,19 @@
-// src/pages/ProductDetailPage.tsx
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Typography, Row, Col, Button, message, Tag, Rate, Spin } from 'antd'
+import {
+  Card,
+  Typography,
+  Row,
+  Col,
+  Button,
+  message,
+  Tag,
+  Rate,
+  Spin,
+  Form,
+  Input,
+  List,
+} from 'antd'
 import {
   ShoppingCartOutlined,
   ArrowLeftOutlined,
@@ -13,6 +25,18 @@ import employee from '../assets/istockphoto-1167872833-612x612.jpg'
 
 const { Title, Paragraph, Text } = Typography
 
+/** ========== типы ========== */
+interface UserBrief {
+  fio: string
+}
+
+interface Review {
+  id: number
+  text: string
+  grade: number | string
+  user: UserBrief
+}
+
 interface Product {
   id: number
   name: string
@@ -22,52 +46,76 @@ interface Product {
   category?: { name: string }
   manufacturer?: { name: string }
   avg_grade?: number
+  reviews: Review[]
 }
 
+/** новый формат recent: [{ user, product }] */
+interface RecentEntry {
+  user: { fio: string }
+  product: Product
+}
+
+/** ========== утилы ========== */
 const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
 
-const getProductImage = (photo: string | null): string => {
-  if (!photo) return employee
-  try {
-    new URL(photo)
-    return photo
-  } catch {
-    return `${S3_BASE_URL}/${photo.replace(/^\/+/, '')}`
-  }
-}
+const getProductImage = (photo: string | null): string =>
+  !photo
+    ? employee
+    : (() => {
+        try {
+          new URL(photo)
+          return photo
+        } catch {
+          return `${S3_BASE_URL}/${photo.replace(/^\/+/, '')}`
+        }
+      })()
 
+/** ========== страница ========== */
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [product, setProduct] = useState<Product | null>(null)
+  const [recent, setRecent] = useState<RecentEntry[]>([])
   const [loading, setLoading] = useState(true)
-  const token = localStorage.getItem('token')
+  const [submitting, setSubmitting] = useState(false)
 
+  const token = localStorage.getItem('token')
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+
+  /* ===== загрузка товара + recent ===== */
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/shop/product/${id}`)
-        if (!res.ok) throw new Error()
-        const json = await res.json()
-        setProduct(json.data)
+        const prodRes = await fetch(`http://localhost:8000/api/shop/product/${id}`, {
+          headers: authHeaders,
+        })
+        if (!prodRes.ok) throw new Error()
+        const { data } = await prodRes.json()
+        setProduct(data)
+
+        if (token) {
+          const recRes = await fetch('http://localhost:8000/api/shop/recent', {
+            headers: authHeaders,
+          })
+          if (recRes.ok) setRecent(await recRes.json()) // сразу массив RecentEntry
+        }
       } catch {
         message.error('Не удалось загрузить товар')
       } finally {
         setLoading(false)
       }
     }
-    fetchProduct()
+    fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  /* ===== добавить в корзину ===== */
   const handleAddToCart = async () => {
-    if (!token) {
-      message.error('Нужно войти, чтобы добавить в корзину')
-      return
-    }
+    if (!token) return message.error('Нужно войти, чтобы добавить в корзину')
     try {
       const res = await fetch(`http://localhost:8000/api/shop/cart/${id}`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: authHeaders,
       })
       if (!res.ok) throw new Error()
       message.success('Товар добавлен в корзину')
@@ -76,58 +124,61 @@ const ProductDetailPage: React.FC = () => {
     }
   }
 
-  if (loading) {
+  /* ===== отправка отзыва ===== */
+  const onFinishReview = async (values: { text: string; grade: number }) => {
+    if (!token) return message.error('Нужно войти, чтобы оставить отзыв')
+    setSubmitting(true)
+    try {
+      const res = await fetch('http://localhost:8000/api/shop/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ ...values, product: id }),
+      })
+      if (!res.ok) throw new Error()
+      const newReview: Review = await res.json()
+      setProduct(prev => (prev ? { ...prev, reviews: [...prev.reviews, newReview] } : prev))
+      message.success('Отзыв добавлен')
+    } catch {
+      message.error('Ошибка при добавлении отзыва')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  /* ===== рендер ===== */
+  if (loading)
     return (
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 100 }}>
         <Spin size="large" />
       </div>
     )
-  }
   if (!product) return null
 
   return (
     <div className="container">
-      <Button
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate(-1)}
-        style={{ marginBottom: 24 }}
-        type="text"
-      >
+      <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} style={{ marginBottom: 24 }} type="text">
         Назад
       </Button>
 
-      <Card
-        bodyStyle={{ padding: 32 }}
-        style={{
-          boxShadow: '0 8px 24px rgba(0,0,0,.08)',
-          borderRadius: 16,
-        }}
-      >
+      {/* карточка товара */}
+      <Card bodyStyle={{ padding: 32 }} style={{ boxShadow: '0 8px 24px rgba(0,0,0,.08)', borderRadius: 16 }}>
         <Row gutter={[32, 32]}>
-          {/* Фото */}
+          {/* фото */}
           <Col xs={24} md={10}>
             <img
               src={getProductImage(product.photo)}
               alt={product.name}
-              style={{
-                width: '100%',
-                aspectRatio: '1 / 1',
-                objectFit: 'cover',
-                borderRadius: 16,
-              }}
-              onError={e => {
-                ;(e.currentTarget as HTMLImageElement).src = employee
-              }}
+              style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', borderRadius: 16 }}
+              onError={e => ((e.currentTarget as HTMLImageElement).src = employee)}
             />
           </Col>
 
-          {/* Инфо */}
+          {/* инфо */}
           <Col xs={24} md={14}>
             <Title level={2} style={{ marginBottom: 8 }}>
               {product.name}
             </Title>
 
-            {/* Категория / Производитель */}
             <div style={{ marginBottom: 8 }}>
               {product.category && (
                 <Tag icon={<TagOutlined />} color="blue">
@@ -141,7 +192,6 @@ const ProductDetailPage: React.FC = () => {
               )}
             </div>
 
-            {/* Рейтинг */}
             {product.avg_grade !== undefined && (
               <div style={{ marginBottom: 16 }}>
                 <Rate allowHalf disabled value={product.avg_grade} />
@@ -155,17 +205,87 @@ const ProductDetailPage: React.FC = () => {
               <DollarOutlined /> {product.price}
             </Paragraph>
 
-            <Button
-              type="primary"
-              icon={<ShoppingCartOutlined />}
-              size="large"
-              onClick={handleAddToCart}
-            >
+            <Button type="primary" icon={<ShoppingCartOutlined />} size="large" onClick={handleAddToCart}>
               Добавить в корзину
             </Button>
           </Col>
         </Row>
       </Card>
+
+      {/* отзывы */}
+      <Card style={{ marginTop: 32 }} title="Отзывы">
+        <Form layout="vertical" onFinish={onFinishReview} disabled={submitting}>
+          <Form.Item name="grade" label="Оценка" rules={[{ required: true }]}>
+            <Rate allowHalf />
+          </Form.Item>
+          <Form.Item name="text" label="Комментарий" rules={[{ required: true }]}>
+            <Input.TextArea rows={4} maxLength={500} />
+          </Form.Item>
+          <Button htmlType="submit" type="primary" loading={submitting}>
+            Отправить отзыв
+          </Button>
+        </Form>
+
+        <List
+          locale={{ emptyText: 'Отзывов пока нет' }}
+          itemLayout="vertical"
+          dataSource={product.reviews}
+          renderItem={item => (
+            <List.Item key={item.id}>
+              <List.Item.Meta title={item.user.fio} description={<Rate allowHalf disabled value={Number(item.grade)} />} />
+              {item.text}
+            </List.Item>
+          )}
+        />
+      </Card>
+{/* недавно просмотренное */}
+{recent.length > 0 && (
+  <Card style={{ marginTop: 32 }} title="Вы недавно смотрели">
+    {/* горизонтальная лента */}
+    <div
+      style={{
+        display: 'flex',
+        gap: 16,
+        overflowX: 'auto',
+        paddingBottom: 8,
+      }}
+    >
+      {recent.map(({ product: recProd }, idx) => (
+        <Card
+          key={idx}
+          hoverable
+          style={{ width: 160, flex: '0 0 auto' }}  // фиксируем ширину, запрещаем рост
+          cover={
+            <img
+              alt={recProd.name}
+              src={getProductImage(recProd.photo)}
+              style={{
+                width: '100%',
+                aspectRatio: '1/1',
+                objectFit: 'cover',
+                borderRadius: 16,
+              }}
+              onError={e => ((e.currentTarget as HTMLImageElement).src = employee)}
+              onClick={() => navigate(`/product/${recProd.id}`)}
+            />
+          }
+          onClick={() => navigate(`/product/${recProd.id}`)}
+        >
+          <Card.Meta
+            title={
+              <Typography.Paragraph
+                ellipsis={{ rows: 2 }}
+                style={{ marginBottom: 0, textAlign: 'center' }}
+              >
+                {recProd.name}
+              </Typography.Paragraph>
+            }
+          />
+        </Card>
+      ))}
+    </div>
+  </Card>
+)}
     </div>
   )
 }

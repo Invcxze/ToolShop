@@ -7,12 +7,14 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from .filters import ProductFilter
-from .models import Product, Cart, Order, Review
+from .models import Product, Cart, Order, Review, RecentProduct
 from .serializers.carts import CartSerializer
 from .serializers.orders import OrderSerializer
-from .serializers.product import ReviewSerializer
+from .serializers.product import ReviewSerializer, RecentProductSerializer, ProductDetailSerializer
 from .serializers.products import ProductSerializer
 from rest_framework.generics import get_object_or_404
+
+from ..users.models import User
 
 stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 
@@ -28,13 +30,17 @@ def get_list_of_products(request):
 @api_view(["GET"])
 def get_detail_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    serializer = ProductSerializer(product)
+    serializer = ProductDetailSerializer(product)
+    print(request.user.is_authenticated, "sss")
+    if request.user.is_active:
+        RecentProduct.objects.create(product=product, user=request.user)
+
     return Response({"data": serializer.data}, status=HTTP_200_OK)
 
 
 @api_view(["POST"])
 def create_review(request):
-    serializer = ReviewSerializer(data=request.data)
+    serializer = ReviewSerializer(data=request.data, context={"request": request})
     serializer.is_valid(raise_exception=True)
     review = serializer.save()
     return Response(ReviewSerializer(review).data, status=HTTP_201_CREATED)
@@ -203,3 +209,12 @@ def stripe_webhook(request):
                 pass
 
     return HttpResponse(status=200)
+
+
+@api_view(["GET"])
+def get_recent_products(request):
+    if not request.user.is_authenticated or request.user.is_staff:
+        return Response({"error": {"code": 403, "message": "Forbidden"}}, status=HTTP_403_FORBIDDEN)
+    recent_produtcs = RecentProduct.objects.filter(user=request.user)
+    print(recent_produtcs, "ssds")
+    return Response(RecentProductSerializer(recent_produtcs, many=True).data, status=HTTP_200_OK)

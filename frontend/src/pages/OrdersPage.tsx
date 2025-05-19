@@ -1,11 +1,24 @@
+// src/pages/OrdersPage.tsx
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Row, Col, Typography, message, Collapse, Divider, List, Tag } from 'antd'
+import {
+  Button,
+  Card,
+  Row,
+  Col,
+  Typography,
+  message,
+  Collapse,
+  Divider,
+  List,
+  Tag,
+} from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import employee from '../assets/istockphoto-1167872833-612x612.jpg'   // дефолтное фото
+import employee from '../assets/istockphoto-1167872833-612x612.jpg' // дефолтное фото
 
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
 
+/* ---------- типы ---------- */
 interface Product {
   id: number
   name: string
@@ -21,10 +34,12 @@ interface Order {
   status: 'paid' | 'unpaid'
 }
 
+/* ---------- страница ---------- */
 const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const token = localStorage.getItem('token')
 
+  /* загрузка заказов */
   const fetchOrders = async () => {
     if (!token) {
       message.error('Авторизуйтесь!')
@@ -42,20 +57,25 @@ const OrdersPage: React.FC = () => {
     }
   }
 
-  useEffect(() => { fetchOrders() }, [])
+  useEffect(() => {
+    fetchOrders()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
+  /* utils */
   const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
 
   const getProductImage = (product: Product) => {
     if (!product.photo) return employee
     try {
-      new URL(product.photo) // абсолютный?
+      new URL(product.photo)
       return product.photo
     } catch {
       return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
     }
   }
 
+  /* ---------- render ---------- */
   return (
     <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
       <Title level={1}>Мои заказы</Title>
@@ -75,9 +95,13 @@ const OrdersPage: React.FC = () => {
                   <Paragraph>
                     <strong>Статус: </strong>
                     {order.status === 'paid' ? (
-                      <Tag color="green" icon={<CheckCircleOutlined />}>Оплачен</Tag>
+                      <Tag color="green" icon={<CheckCircleOutlined />}>
+                        Оплачен
+                      </Tag>
                     ) : (
-                      <Tag color="red" icon={<CloseCircleOutlined />}>Не оплачен</Tag>
+                      <Tag color="red" icon={<CloseCircleOutlined />}>
+                        Не оплачен
+                      </Tag>
                     )}
                   </Paragraph>
 
@@ -88,20 +112,42 @@ const OrdersPage: React.FC = () => {
                     dataSource={order.products}
                     renderItem={p => (
                       <List.Item>
-                        <Card style={{ width: '100%', display: 'flex', gap: 16 }}>
+                        <Card
+                          style={{
+                            width: '100%',
+                            display: 'flex',
+                            gap: 16,
+                            alignItems: 'center',
+                          }}
+                        >
                           <img
                             src={getProductImage(p)}
                             alt={p.name}
-                            style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 8 }}
+                            style={{
+                              width: 120,
+                              height: 120,
+                              objectFit: 'cover',
+                              borderRadius: 8,
+                              flexShrink: 0,
+                            }}
                             onError={e => {
-                              (e.currentTarget as HTMLImageElement).src = employee
+                              ;(e.currentTarget as HTMLImageElement).src = employee
                               e.currentTarget.style.objectFit = 'contain'
                             }}
                           />
-                          <div>
+
+                          <div style={{ flex: 1 }}>
                             <Title level={5}>{p.name}</Title>
-                            <Paragraph>{p.description}</Paragraph>
-                            <Paragraph>Цена: ${p.price}</Paragraph>
+
+                            {/* ограничиваем описание, чтобы карточка не растягивалась */}
+                            <Paragraph
+                              ellipsis={{ rows: 2 }}
+                              style={{ marginBottom: 8, minHeight: 44 }} // ≈ 2 строки
+                            >
+                              {p.description}
+                            </Paragraph>
+
+                            <Paragraph strong>Цена: ${p.price}</Paragraph>
                           </div>
                         </Card>
                       </List.Item>

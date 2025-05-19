@@ -10,6 +10,9 @@ from .views import (
     payment_status,
     stripe_webhook,
     get_detail_product,
+    get_recent_products,
+    create_review,
+    manage_reviews,
 )
 
 urlpatterns = [
@@ -22,4 +25,7 @@ urlpatterns = [
     path("order", get_list_of_products_from_order),
     path("payment-status/<str:session_id>", payment_status),
     path("stripe/webhook", stripe_webhook),
+    path("review", create_review),
+    path("review:<int:review_id>", manage_reviews),
+    path("recent", get_recent_products),
 ]

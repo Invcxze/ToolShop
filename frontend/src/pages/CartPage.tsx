@@ -1,10 +1,12 @@
+// src/pages/CartPage.tsx
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import employee from '../assets/istockphoto-1167872833-612x612.jpg' // заглушка для фото
+import employee from '../assets/istockphoto-1167872833-612x612.jpg' // заглушка
 
 const { Title, Paragraph } = Typography
 
+/* ---------- типы ---------- */
 interface Product {
   id: number
   name: string
@@ -13,11 +15,13 @@ interface Product {
   photo: string | null
 }
 
+/* ---------- страница ---------- */
 const CartPage: React.FC = () => {
   const [cart, setCart] = useState<Product[]>([])
   const navigate = useNavigate()
   const token = localStorage.getItem('token')
 
+  /* загрузка корзины */
   useEffect(() => {
     const fetchCart = async () => {
       if (!token) {
@@ -38,8 +42,10 @@ const CartPage: React.FC = () => {
       }
     }
     fetchCart()
-  }, [navigate, token])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
+  /* удалить товар */
   const handleRemoveFromCart = async (id: number) => {
     if (!token) {
       message.error('Пожалуйста, войдите в систему')
@@ -59,6 +65,7 @@ const CartPage: React.FC = () => {
     }
   }
 
+  /* оформить заказ */
   const handleCheckout = async () => {
     if (!token) {
       message.error('Пожалуйста, войдите в систему')
@@ -82,8 +89,8 @@ const CartPage: React.FC = () => {
     }
   }
 
+  /* utils */
   const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
-
   const getProductImage = (product: Product) => {
     if (!product.photo) return employee
     try {
@@ -94,6 +101,7 @@ const CartPage: React.FC = () => {
     }
   }
 
+  /* ---------- render ---------- */
   return (
     <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
       <Title level={1}>Корзина</Title>
@@ -102,7 +110,11 @@ const CartPage: React.FC = () => {
         {cart.length === 0 ? (
           <Col span={24}>
             <Title level={3}>Корзина пуста</Title>
-            <Button type="primary" onClick={() => navigate('/products')} style={{ marginTop: 20 }}>
+            <Button
+              type="primary"
+              onClick={() => navigate('/products')}
+              style={{ marginTop: 20 }}
+            >
               Перейти к товарам
             </Button>
           </Col>
@@ -115,22 +127,43 @@ const CartPage: React.FC = () => {
                   <img
                     alt={product.name}
                     src={getProductImage(product)}
-                    style={{ objectFit: 'contain', height: 200, width: '100%', backgroundColor: '#f0f0f0' }}
+                    style={{
+                      objectFit: 'cover',
+                      height: 200,
+                      width: '100%',
+                      borderTopLeftRadius: 4,
+                      borderTopRightRadius: 4,
+                      backgroundColor: '#f0f0f0',
+                    }}
                     onError={e => {
-                      ;(e.target as HTMLImageElement).src = employee
+                      ;(e.currentTarget as HTMLImageElement).src = employee
                       e.currentTarget.style.objectFit = 'contain'
                     }}
                   />
                 }
                 actions={[
-                  <Button danger onClick={() => handleRemoveFromCart(product.id)} key="delete">
+                  <Button
+                    danger
+                    onClick={() => handleRemoveFromCart(product.id)}
+                    key="delete"
+                  >
                     Удалить
                   </Button>,
                 ]}
               >
                 <Title level={4}>{product.name}</Title>
-                <Paragraph>{product.description}</Paragraph>
-                <Paragraph>Цена: ${parseFloat(product.price).toFixed(2)}</Paragraph>
+
+                {/* ограничиваем описание, чтобы карточка не растягивалась */}
+                <Paragraph
+                  ellipsis={{ rows: 3 }}
+                  style={{ marginBottom: 8, minHeight: 66 }} // ≈ 3 строки
+                >
+                  {product.description}
+                </Paragraph>
+
+                <Paragraph strong>
+                  Цена: ${parseFloat(product.price).toFixed(2)}
+                </Paragraph>
               </Card>
             </Col>
           ))
