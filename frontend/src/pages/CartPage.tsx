@@ -1,8 +1,8 @@
 // src/pages/CartPage.tsx
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Row, Col, Typography, message } from 'antd'
+import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import employee from '../assets/istockphoto-1167872833-612x612.jpg' // заглушка
+import employee from '../assets/istockphoto-1167872833-612x612.jpg'
 
 const { Title, Paragraph } = Typography
 
@@ -13,6 +13,8 @@ interface Product {
   description: string
   price: string
   photo: string | null
+  category?: string | null      // ← добавлено
+  manufacturer?: string | null  // ← добавлено
 }
 
 /* ---------- страница ---------- */
@@ -29,7 +31,6 @@ const CartPage: React.FC = () => {
         navigate('/login')
         return
       }
-
       try {
         const res = await fetch('http://localhost:8000/api/shop/cart', {
           headers: { Authorization: `Bearer ${token}` },
@@ -110,11 +111,7 @@ const CartPage: React.FC = () => {
         {cart.length === 0 ? (
           <Col span={24}>
             <Title level={3}>Корзина пуста</Title>
-            <Button
-              type="primary"
-              onClick={() => navigate('/products')}
-              style={{ marginTop: 20 }}
-            >
+            <Button type="primary" onClick={() => navigate('/products')} style={{ marginTop: 20 }}>
               Перейти к товарам
             </Button>
           </Col>
@@ -142,28 +139,29 @@ const CartPage: React.FC = () => {
                   />
                 }
                 actions={[
-                  <Button
-                    danger
-                    onClick={() => handleRemoveFromCart(product.id)}
-                    key="delete"
-                  >
+                  <Button danger onClick={() => handleRemoveFromCart(product.id)} key="delete">
                     Удалить
                   </Button>,
                 ]}
               >
                 <Title level={4}>{product.name}</Title>
 
-                {/* ограничиваем описание, чтобы карточка не растягивалась */}
-                <Paragraph
-                  ellipsis={{ rows: 3 }}
-                  style={{ marginBottom: 8, minHeight: 66 }} // ≈ 3 строки
-                >
+                {/* категория / производитель */}
+                <div style={{ marginBottom: 8 }}>
+                  {product.category && (
+                    <Tag color="blue" style={{ marginRight: 4 }}>
+                      {product.category}
+                    </Tag>
+                  )}
+                  {product.manufacturer && <Tag color="volcano">{product.manufacturer}</Tag>}
+                </div>
+
+                {/* описание */}
+                <Paragraph ellipsis={{ rows: 3 }} style={{ marginBottom: 8, minHeight: 66 }}>
                   {product.description}
                 </Paragraph>
 
-                <Paragraph strong>
-                  Цена: ${parseFloat(product.price).toFixed(2)}
-                </Paragraph>
+                <Paragraph strong>Цена: ${parseFloat(product.price).toFixed(2)}</Paragraph>
               </Card>
             </Col>
           ))

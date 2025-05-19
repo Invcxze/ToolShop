@@ -33,8 +33,8 @@ class ProductDetailSerializer(serializers.Serializer):
     name = serializers.CharField()
     description = serializers.CharField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    category = serializers.IntegerField()
-    manufacturer = serializers.IntegerField()
+    category = serializers.CharField(source="category.name", read_only=True)
+    manufacturer = serializers.CharField(source="manufacturer.name", read_only=True)
     photo = serializers.FileField()
     reviews = serializers.SerializerMethodField()
 

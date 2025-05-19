@@ -25,6 +25,8 @@ interface Product {
   description: string
   price: string
   photo?: string | null
+  category?: string | null        // ← добавлено
+  manufacturer?: string | null    // ← добавлено
 }
 
 interface Order {
@@ -139,13 +141,24 @@ const OrdersPage: React.FC = () => {
                           <div style={{ flex: 1 }}>
                             <Title level={5}>{p.name}</Title>
 
-                            {/* ограничиваем описание, чтобы карточка не растягивалась */}
                             <Paragraph
                               ellipsis={{ rows: 2 }}
-                              style={{ marginBottom: 8, minHeight: 44 }} // ≈ 2 строки
+                              style={{ marginBottom: 8, minHeight: 44 }}
                             >
                               {p.description}
                             </Paragraph>
+
+                            {/* категория и производитель */}
+                            <div style={{ marginBottom: 8 }}>
+                              {p.category && (
+                                <Tag color="blue" style={{ marginRight: 4 }}>
+                                  {p.category}
+                                </Tag>
+                              )}
+                              {p.manufacturer && (
+                                <Tag color="volcano">{p.manufacturer}</Tag>
+                              )}
+                            </div>
 
                             <Paragraph strong>Цена: ${p.price}</Paragraph>
                           </div>

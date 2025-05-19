@@ -25,7 +25,6 @@ import employee from '../assets/istockphoto-1167872833-612x612.jpg'
 
 const { Title, Paragraph, Text } = Typography
 
-/** ========== типы ========== */
 interface UserBrief {
   fio: string
 }
@@ -43,19 +42,17 @@ interface Product {
   description: string
   price: string
   photo: string | null
-  category?: { name: string }
-  manufacturer?: { name: string }
+  category?: string | null
+  manufacturer?: string | null
   avg_grade?: number
   reviews: Review[]
 }
 
-/** новый формат recent: [{ user, product }] */
 interface RecentEntry {
   user: { fio: string }
   product: Product
 }
 
-/** ========== утилы ========== */
 const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
 
 const getProductImage = (photo: string | null): string =>
@@ -70,7 +67,21 @@ const getProductImage = (photo: string | null): string =>
         }
       })()
 
-/** ========== страница ========== */
+const renderBadges = (p: Product) => (
+  <>
+    {p.category && (
+      <Tag icon={<TagOutlined />} color="blue">
+        {p.category}
+      </Tag>
+    )}
+    {p.manufacturer && (
+      <Tag icon={<HomeOutlined />} color="volcano">
+        {p.manufacturer}
+      </Tag>
+    )}
+  </>
+)
+
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -82,7 +93,6 @@ const ProductDetailPage: React.FC = () => {
   const token = localStorage.getItem('token')
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
 
-  /* ===== загрузка товара + recent ===== */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -97,7 +107,7 @@ const ProductDetailPage: React.FC = () => {
           const recRes = await fetch('http://localhost:8000/api/shop/recent', {
             headers: authHeaders,
           })
-          if (recRes.ok) setRecent(await recRes.json()) // сразу массив RecentEntry
+          if (recRes.ok) setRecent(await recRes.json())
         }
       } catch {
         message.error('Не удалось загрузить товар')
@@ -106,10 +116,8 @@ const ProductDetailPage: React.FC = () => {
       }
     }
     fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  /* ===== добавить в корзину ===== */
   const handleAddToCart = async () => {
     if (!token) return message.error('Нужно войти, чтобы добавить в корзину')
     try {
@@ -124,7 +132,6 @@ const ProductDetailPage: React.FC = () => {
     }
   }
 
-  /* ===== отправка отзыва ===== */
   const onFinishReview = async (values: { text: string; grade: number }) => {
     if (!token) return message.error('Нужно войти, чтобы оставить отзыв')
     setSubmitting(true)
@@ -145,7 +152,6 @@ const ProductDetailPage: React.FC = () => {
     }
   }
 
-  /* ===== рендер ===== */
   if (loading)
     return (
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 100 }}>
@@ -160,7 +166,6 @@ const ProductDetailPage: React.FC = () => {
         Назад
       </Button>
 
-      {/* карточка товара */}
       <Card bodyStyle={{ padding: 32 }} style={{ boxShadow: '0 8px 24px rgba(0,0,0,.08)', borderRadius: 16 }}>
         <Row gutter={[32, 32]}>
           {/* фото */}
@@ -179,18 +184,7 @@ const ProductDetailPage: React.FC = () => {
               {product.name}
             </Title>
 
-            <div style={{ marginBottom: 8 }}>
-              {product.category && (
-                <Tag icon={<TagOutlined />} color="blue">
-                  {product.category.name}
-                </Tag>
-              )}
-              {product.manufacturer && (
-                <Tag icon={<HomeOutlined />} color="volcano">
-                  {product.manufacturer.name}
-                </Tag>
-              )}
-            </div>
+            <div style={{ marginBottom: 8 }}>{renderBadges(product)}</div>
 
             {product.avg_grade !== undefined && (
               <div style={{ marginBottom: 16 }}>
@@ -212,7 +206,6 @@ const ProductDetailPage: React.FC = () => {
         </Row>
       </Card>
 
-      {/* отзывы */}
       <Card style={{ marginTop: 32 }} title="Отзывы">
         <Form layout="vertical" onFinish={onFinishReview} disabled={submitting}>
           <Form.Item name="grade" label="Оценка" rules={[{ required: true }]}>
@@ -238,54 +231,56 @@ const ProductDetailPage: React.FC = () => {
           )}
         />
       </Card>
-{/* недавно просмотренное */}
-{recent.length > 0 && (
-  <Card style={{ marginTop: 32 }} title="Вы недавно смотрели">
-    {/* горизонтальная лента */}
-    <div
-      style={{
-        display: 'flex',
-        gap: 16,
-        overflowX: 'auto',
-        paddingBottom: 8,
-      }}
-    >
-      {recent.map(({ product: recProd }, idx) => (
-        <Card
-          key={idx}
-          hoverable
-          style={{ width: 160, flex: '0 0 auto' }}  // фиксируем ширину, запрещаем рост
-          cover={
-            <img
-              alt={recProd.name}
-              src={getProductImage(recProd.photo)}
-              style={{
-                width: '100%',
-                aspectRatio: '1/1',
-                objectFit: 'cover',
-                borderRadius: 16,
-              }}
-              onError={e => ((e.currentTarget as HTMLImageElement).src = employee)}
-              onClick={() => navigate(`/product/${recProd.id}`)}
-            />
-          }
-          onClick={() => navigate(`/product/${recProd.id}`)}
-        >
-          <Card.Meta
-            title={
-              <Typography.Paragraph
-                ellipsis={{ rows: 2 }}
-                style={{ marginBottom: 0, textAlign: 'center' }}
+
+      {recent.length > 0 && (
+        <Card style={{ marginTop: 32 }} title="Вы недавно смотрели">
+          <div
+            style={{
+              display: 'flex',
+              gap: 16,
+              overflowX: 'auto',
+              paddingBottom: 8,
+            }}
+          >
+            {recent.map(({ product: recProd }, idx) => (
+              <Card
+                key={idx}
+                hoverable
+                style={{ width: 160, flex: '0 0 auto' }}
+                cover={
+                  <img
+                    alt={recProd.name}
+                    src={getProductImage(recProd.photo)}
+                    style={{
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      objectFit: 'cover',
+                      borderRadius: 16,
+                    }}
+                    onError={e => ((e.currentTarget as HTMLImageElement).src = employee)}
+                    onClick={() => navigate(`/product/${recProd.id}`)}
+                  />
+                }
+                onClick={() => navigate(`/product/${recProd.id}`)}
               >
-                {recProd.name}
-              </Typography.Paragraph>
-            }
-          />
+                <Card.Meta
+                  title={
+                    <>
+                      <Typography.Paragraph
+                        ellipsis={{ rows: 2 }}
+                        style={{ marginBottom: 4, textAlign: 'center' }}
+                      >
+                        {recProd.name}
+                      </Typography.Paragraph>
+                      <div style={{ textAlign: 'center' }}>{renderBadges(recProd)}</div>
+                    </>
+                  }
+                />
+              </Card>
+            ))}
+          </div>
         </Card>
-      ))}
-    </div>
-  </Card>
-)}
+      )}
     </div>
   )
 }
