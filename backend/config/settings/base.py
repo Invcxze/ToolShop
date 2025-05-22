@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,9 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-znxuet%ys_5(g!ep4a6vx%d^53zr*^+op)8xnkgc0qh@$243=)'
-
-ALLOWED_HOSTS = []
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 
 # Application definition
@@ -127,23 +129,23 @@ REST_FRAMEWORK = {
 
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-AWS_STORAGE_BUCKET_NAME = "local-bucket-shop"
-AWS_S3_ENDPOINT_URL = "http://localhost:9000"
-AWS_S3_ACCESS_KEY_ID = "admin"
-AWS_S3_SECRET_ACCESS_KEY = "adminpassword"
-AWS_S3_REGION_NAME = "ru-cod-4-2"
 AWS_QUERYSTRING_AUTH = True
-AWS_QUERYSTRING_EXPIRE = 60 * 30
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_USE_SSL = False
 AWS_S3_VERIFY = False
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL")
+AWS_S3_ACCESS_KEY_ID = os.getenv("AWS_S3_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = os.getenv("AWS_S3_SECRET_ACCESS_KEY")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+AWS_QUERYSTRING_EXPIRE = int(os.getenv("AWS_QUERYSTRING_EXPIRE", 60 * 30))
 
-STRIPE_TEST_PUBLIC_KEY = 'pk_test_51ROE3JPOV9fDpeeQUFMBMDhmUrDJToH8tSvhX2EezbzyVRGtxXKEflFU9rQUA73EF8Qh4oeL5R99ISQML3xv3JMT00bCD3owYo'
-STRIPE_TEST_SECRET_KEY = 'sk_test_51ROE3JPOV9fDpeeQjdXrjbcSwi4bJ7CU7HYDuoHm9HOmfqqgFm2KqjvIdWzuZY5ABP8yfRiHkS93KPymrIGWUpgB00xKDdl0So'
+STRIPE_TEST_PUBLIC_KEY = os.getenv("STRIPE_TEST_PUBLIC_KEY")
+STRIPE_TEST_SECRET_KEY = os.getenv("STRIPE_TEST_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+PAYMENT_HOST = os.getenv("PAYMENT_HOST")
+PAYMENT_PROTOCOL = os.getenv("PAYMENT_PROTOCOL")
 
 SITE_ID = 1
-PAYMENT_HOST = "localhost:8000"
-PAYMENT_PROTOCOL = "http"
-STRIPE_WEBHOOK_SECRET = "whsec_4c7cb0bc16a35f6bc65f139d2b2af2aa21552a4e7890bce7d70b5994d25ae8b1"
