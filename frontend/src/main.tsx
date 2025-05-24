@@ -40,9 +40,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           </Routes>
         </Content>
         <Footer style={{ textAlign: 'center', padding: '20px 0', backgroundColor: '#f0f2f5', position: 'relative', bottom: 0, width: '100%' }}>
-          <Text>© 2025 Магазин инструментов - Все права защищены</Text>
+          <Text>© 2025 Магазин музыкальных инструментов - Все права защищены</Text>
           <br />
-          <Text type="secondary">Мы продаем качественные инструменты для любых нужд.</Text>
+          <Text type="secondary">Мы продаем качественные музыкальные инструменты для лучшего звучания и нужд.</Text>
         </Footer>
       </Layout>
     </BrowserRouter>
