@@ -50,7 +50,7 @@ services:
       - app-network
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2024-05-01T13-48-32Z  # Образ с фиксом для CPU
+    image: minio/minio
     container_name: shop-minio
     command: server /data --console-address ":9001"
     ports:
