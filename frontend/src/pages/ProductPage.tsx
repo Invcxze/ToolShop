@@ -6,6 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import default_product_photo from '../assets/tools.jpg'
 const { Title, Paragraph } = Typography;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Product {
   id: number;
@@ -50,7 +51,7 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/shop/products");
+        const res = await fetch(`${BASE_URL}/shop/products`);
         if (!res.ok) throw new Error();
         const data = await res.json();
 
@@ -128,7 +129,7 @@ const ProductPage: React.FC = () => {
   const handleAddToCart = async (id: number) => {
     if (!token) return message.error("Авторизуйтесь!");
     try {
-      const res = await fetch(`http://localhost:8000/api/shop/cart/${id}`, {
+      const res = await fetch(`${BASE_URL}/shop/cart/${id}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });

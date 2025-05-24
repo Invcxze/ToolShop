@@ -1,12 +1,13 @@
-FROM --platform=linux/amd64 node:20
+# frontend/Dockerfile
+FROM node:20
 
 WORKDIR /frontend
 
 COPY package*.json ./
-RUN npm install --force --include=optional
+COPY .env .   # Копируем .env файл
 
+RUN npm install
 COPY . .
-
 RUN npm run build
 
 CMD ["npm", "run", "dev"]

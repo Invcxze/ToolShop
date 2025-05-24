@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons'
 import default_product_photo from '../assets/tools.jpg'
 const { Title, Paragraph, Text } = Typography
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface UserBrief {
   fio: string
@@ -95,7 +96,7 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const prodRes = await fetch(`http://localhost:8000/api/shop/product/${id}`, {
+        const prodRes = await fetch(`${BASE_URL}/shop/product/${id}`, {
           headers: authHeaders,
         })
         if (!prodRes.ok) throw new Error()
@@ -103,7 +104,7 @@ const ProductDetailPage: React.FC = () => {
         setProduct(data)
 
         if (token) {
-          const recRes = await fetch('http://localhost:8000/api/shop/recent', {
+          const recRes = await fetch(`${BASE_URL}/shop/recent`, {
             headers: authHeaders,
           })
           if (recRes.ok) setRecent(await recRes.json())
@@ -120,7 +121,7 @@ const ProductDetailPage: React.FC = () => {
   const handleAddToCart = async () => {
     if (!token) return message.error('Нужно войти, чтобы добавить в корзину')
     try {
-      const res = await fetch(`http://localhost:8000/api/shop/cart/${id}`, {
+      const res = await fetch(`${BASE_URL}/shop/cart/${id}`, {
         method: 'POST',
         headers: authHeaders,
       })
@@ -135,7 +136,7 @@ const ProductDetailPage: React.FC = () => {
     if (!token) return message.error('Нужно войти, чтобы оставить отзыв')
     setSubmitting(true)
     try {
-      const res = await fetch('http://localhost:8000/api/shop/review', {
+      const res = await fetch(`${BASE_URL}/shop/review`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ ...values, product: id }),

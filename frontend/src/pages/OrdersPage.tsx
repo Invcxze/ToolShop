@@ -15,6 +15,7 @@ import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import default_product_photo from '../assets/tools.jpg'
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /* ---------- типы ---------- */
 interface Product {
@@ -46,7 +47,7 @@ const OrdersPage: React.FC = () => {
       return
     }
     try {
-      const res = await fetch('http://localhost:8000/api/shop/order', {
+      const res = await fetch(`${BASE_URL}/shop/order`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!res.ok) throw new Error()

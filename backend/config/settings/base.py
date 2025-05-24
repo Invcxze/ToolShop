@@ -57,6 +57,7 @@ MIDDLEWARE = [
 ]
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:5173',
+    "http://146.255.188.248:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

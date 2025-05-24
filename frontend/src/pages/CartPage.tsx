@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import default_product_photo from '../assets/tools.jpg'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const { Title, Paragraph } = Typography
 
@@ -28,7 +29,7 @@ const CartPage: React.FC = () => {
         return
       }
       try {
-        const res = await fetch('http://localhost:8000/api/shop/cart', {
+        const res = await fetch(`${BASE_URL}/shop/cart`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error()
@@ -48,7 +49,7 @@ const CartPage: React.FC = () => {
       return
     }
     try {
-      const res = await fetch(`http://localhost:8000/api/shop/cart/${id}`, {
+      const res = await fetch(`${BASE_URL}/shop/cart/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -71,7 +72,7 @@ const CartPage: React.FC = () => {
       return
     }
     try {
-      const res = await fetch('http://localhost:8000/api/shop/order', {
+      const res = await fetch(`${BASE_URL}/shop/order`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       })
