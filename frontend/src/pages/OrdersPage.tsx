@@ -12,7 +12,7 @@ import {
   Tag,
 } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import default_product_photo from '../assets/guitar.jpg'
+import default_product_photo from '../assets/guitar.jpeg'
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
