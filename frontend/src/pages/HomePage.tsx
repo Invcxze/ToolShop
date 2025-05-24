@@ -12,7 +12,7 @@ const HomePage = () => {
   return (
     <div style={{ maxWidth: '1200px', margin: 'auto', padding: '20px', textAlign: 'center' }}>
       <Title level={1} style={{ fontWeight: 'bold', color: '#1890ff' }}>
-        Добро пожаловать в ToolShop!
+        Добро пожаловать в MusicShop!
       </Title>
       <Paragraph style={{ fontSize: '16px', color: '#555' }}>
         Откройте для себя лучший выбор товаров. Мы предлагаем широкий ассортимент высококачественных музыкальных инструментов и товаров по привлекательным ценам. Начните покупки прямо сейчас и убедитесь в этом сами!
