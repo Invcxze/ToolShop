@@ -9,22 +9,22 @@ DATABASES = {
         'NAME': BASE_DIR / 'local_db.sqlite3',
     }
 }
-INSTALLED_APPS += [
-    "silk",
-	"query_counter",
-]
+# INSTALLED_APPS += [
+#     "silk",
+# 	"query_counter",
+# ]
+#
+# MIDDLEWARE += [
+# 	"query_counter.middleware.DjangoQueryCounterMiddleware",
+# ]
 
-MIDDLEWARE += [
-	"query_counter.middleware.DjangoQueryCounterMiddleware",
-]
-
-QUERYCOUNT = {
-	"THRESHOLDS": {
-		"MEDIUM": 50,
-		"HIGH": 200,
-	},
-	"DISPLAY_DUPLICATES": True,
-	"RESPONSE_HEADER": "X-Query-Count",
-	"LOG_QUERIES": True,
-	"LOG_LEVEL": "DEBUG",
-}
+# QUERYCOUNT = {
+# 	"THRESHOLDS": {
+# 		"MEDIUM": 50,
+# 		"HIGH": 200,
+# 	},
+# 	"DISPLAY_DUPLICATES": True,
+# 	"RESPONSE_HEADER": "X-Query-Count",
+# 	"LOG_QUERIES": True,
+# 	"LOG_LEVEL": "DEBUG",
+# }
