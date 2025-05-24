@@ -66,14 +66,23 @@ const ProductPage: React.FC = () => {
         setProducts(normalized);
         setFiltered(normalized);
 
-        // наполняем выпадающие списки уникальными значениями
         setCategoryOptions(
-          Array.from(new Set(normalized.map(p => p.category).filter(Boolean)))
-            .sort()
+          Array.from(
+            new Set(
+              normalized
+                .map(p => p.category)
+                .filter((c): c is string => c != null)
+            )
+          ).sort()
         );
         setManufacturerOptions(
-          Array.from(new Set(normalized.map(p => p.manufacturer).filter(Boolean)))
-            .sort()
+          Array.from(
+            new Set(
+              normalized
+                .map(p => p.manufacturer)
+                .filter((m): m is string => m != null)
+            )
+          ).sort()
         );
       } catch {
         message.error("Не удалось загрузить товары");

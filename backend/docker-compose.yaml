@@ -1,5 +1,7 @@
 version: '3.9'
-
+networks:
+  app-network:
+    driver: bridge
 services:
   web:
     build:
@@ -16,31 +18,36 @@ services:
     depends_on:
       - db
       - minio
+    networks:
+      - app-network
 
   frontend:
     build:
-      context: ../frontend
+      context: ../frontend  # Путь должен быть правильным относительно папки backend
       dockerfile: Dockerfile.frontend
     container_name: shop-frontend
-    command: npm run dev
+    command: sh -c "rm -rf node_modules && npm install --include=optional && npm run dev"
     volumes:
       - ../frontend:/frontend
     ports:
       - "5173:5173"
     environment:
+      - VITE_API_BASE_URL=http://shop-backend:8000
       - CHOKIDAR_USEPOLLING=true
+    platform: linux/amd64
+    networks:
+      - app-network
 
   db:
     image: postgres:15
-    container_name: shop-db
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file: .env
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    networks:
+      - app-network
+
 
   minio:
     image: minio/minio

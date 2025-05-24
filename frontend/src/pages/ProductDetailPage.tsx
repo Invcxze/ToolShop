@@ -90,7 +90,7 @@ const ProductDetailPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
 
   const token = localStorage.getItem('token')
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : undefined as unknown as HeadersInit;
 
   useEffect(() => {
     const fetchData = async () => {

@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { Button, Layout, Menu, message } from 'antd'
+import { useEffect, useState } from 'react'
+import { Layout, Menu, message } from 'antd'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { ShoppingCartOutlined, UserOutlined, LogoutOutlined, AppstoreAddOutlined } from '@ant-design/icons'
+import {
+  ShoppingCartOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  AppstoreAddOutlined
+} from '@ant-design/icons'
 
 const { Header: AntHeader } = Layout
 
 const Header = () => {
   const navigate = useNavigate()
-  const location = useLocation() // Получаем текущий маршрут
+  const location = useLocation()
   const token = localStorage.getItem('token')
 
   const handleLogout = async () => {
@@ -34,32 +39,45 @@ const Header = () => {
       navigate('/login')
     } catch (error) {
       console.error('Ошибка при выходе:', error)
-      message.error(error.message || 'Не удалось выйти из системы')
+
+      // Явная проверка типа ошибки
+      if (error instanceof Error) {
+        message.error(error.message)
+      } else {
+        message.error('Не удалось выйти из системы')
+      }
     }
   }
 
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
   useEffect(() => {
-    if (location.pathname === '/products') {
-      setSelectedKeys(['products'])
-    } else if (location.pathname === '/cart') {
-      setSelectedKeys(['cart'])
-    } else if (location.pathname === '/orders') {
-      setSelectedKeys(['orders'])
-    } else {
-      setSelectedKeys([])
+    const pathToKey: Record<string, string> = {
+      '/products': 'products',
+      '/cart': 'cart',
+      '/orders': 'orders'
     }
+    setSelectedKeys([pathToKey[location.pathname] || ''])
   }, [location.pathname])
 
   return (
     <AntHeader style={{ background: '#fff', padding: 0 }}>
-      <div className="logo" style={{ float: 'left', marginLeft: '20px', display: 'flex', alignItems: 'center' }}>
+      <div className="logo" style={{
+        float: 'left',
+        marginLeft: '20px',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
         <Link to="/" style={{ fontSize: '20px', fontWeight: 'bold' }}>
           ToolShop
         </Link>
       </div>
-      <Menu mode="horizontal" selectedKeys={selectedKeys} style={{ float: 'right' }}>
+
+      <Menu
+        mode="horizontal"
+        selectedKeys={selectedKeys}
+        style={{ float: 'right' }}
+      >
         <Menu.Item
           key="products"
           icon={<AppstoreAddOutlined />}
@@ -84,7 +102,11 @@ const Header = () => {
             >
               Заказы
             </Menu.Item>
-            <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
+            <Menu.Item
+              key="logout"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+            >
               Выйти
             </Menu.Item>
           </>
