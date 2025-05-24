@@ -189,7 +189,7 @@ def payment_status(request: Request, session_id: str) -> Response:
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.headers.get("Stripe-Signature")
-    webhook_secret = settings.STRIPE_WEBHOOK_SECRET
+    webhook_secret = "whsec_4c7cb0bc16a35f6bc65f139d2b2af2aa21552a4e7890bce7d70b5994d25ae8b1"
 
     try:
         event = stripe.Webhook.construct_event(payload=payload, sig_header=sig_header, secret=webhook_secret)
