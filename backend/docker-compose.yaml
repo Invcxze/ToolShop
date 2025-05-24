@@ -23,7 +23,7 @@ services:
 
   frontend:
     build:
-      context: ../frontend  # Путь должен быть правильным относительно папки backend
+      context: ../frontend
       dockerfile: Dockerfile.frontend
     container_name: shop-frontend
     command: sh -c "rm -rf node_modules && npm install --include=optional && npm run dev"
@@ -48,7 +48,6 @@ services:
     networks:
       - app-network
 
-
   minio:
     image: minio/minio
     container_name: shop-minio
@@ -61,15 +60,17 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - minio-data:/data
+    networks:
+      - app-network
 
   stripe:
     image: stripe/stripe-cli
     container_name: stripe-cli
-    entrypoint: /bin/sh -c "while true; do sleep 1000; done"
-    volumes:
-      - ~/.stripe:/root/.stripe
+    command: listen --forward-to http://web:8000/api/stripe/webhook
     depends_on:
       - web
+    networks:
+      - app-network
 
 volumes:
   pgdata:
