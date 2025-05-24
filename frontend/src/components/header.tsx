@@ -7,7 +7,7 @@ import {
   LogoutOutlined,
   AppstoreAddOutlined
 } from '@ant-design/icons'
-
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const { Header: AntHeader } = Layout
 
 const Header = () => {
@@ -22,7 +22,7 @@ const Header = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/users/logout/', {
+      const response = await fetch(`${BASE_URL}/users/logout/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
