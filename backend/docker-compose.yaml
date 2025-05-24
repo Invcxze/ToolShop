@@ -32,7 +32,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      - VITE_API_BASE_URL=http://146.255.188.248:8000/api
       - CHOKIDAR_USEPOLLING=true
     platform: linux/amd64
     networks:
