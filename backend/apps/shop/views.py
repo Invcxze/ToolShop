@@ -32,7 +32,7 @@ def get_detail_product(request, product_id):
     serializer = ProductDetailSerializer(product)
     print(request.user.is_authenticated, "sss")
     if request.user.is_active:
-        RecentProduct.objects.create(product=product, user=request.user)
+        RecentProduct.objects.get_or_create(product=product, user=request.user)
 
     return Response({"data": serializer.data}, status=HTTP_200_OK)
 
@@ -142,8 +142,8 @@ def get_list_of_products_from_order(request: Request) -> Response:
                 }
             ],
             mode="payment",
-            success_url="http://localhost:5173/orders",
-            cancel_url="http://localhost:5173/cart",
+            success_url="http://146.255.188.248:5173/orders",
+            cancel_url="http://146.255.188.248:5173/cart",
             metadata={"order_id": order.id},
             customer_email=request.user.email,
         )
