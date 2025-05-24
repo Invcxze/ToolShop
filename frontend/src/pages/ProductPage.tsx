@@ -4,7 +4,7 @@ import {
   Input, Select, Space, Tag
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import default_product_photo from '../assets/tools.jpg'
+import default_product_photo from '../assets/guitar.jpg'
 const { Title, Paragraph } = Typography;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

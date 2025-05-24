@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { ShoppingCartOutlined, LoginOutlined, UserAddOutlined } from '@ant-design/icons'
 
 const { Title, Paragraph } = Typography
-import welcomeImage from '../assets/stroitelnye-magaziny-1-min.jpg'
+import welcomeImage from '../assets/IMG_7817.jpeg'
+
 
 const HomePage = () => {
   const navigate = useNavigate()

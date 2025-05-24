@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import default_product_photo from '../assets/tools.jpg'
+import default_product_photo from '../assets/guitar.jpg'
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const { Title, Paragraph } = Typography

@@ -69,7 +69,7 @@ const Header = () => {
         alignItems: 'center'
       }}>
         <Link to="/" style={{ fontSize: '20px', fontWeight: 'bold' }}>
-          ToolShop
+          MusicShop
         </Link>
       </div>
 
@@ -83,7 +83,7 @@ const Header = () => {
           icon={<AppstoreAddOutlined />}
           onClick={() => navigate('/products')}
         >
-          Продукты
+          Товары
         </Menu.Item>
 
         {token ? (

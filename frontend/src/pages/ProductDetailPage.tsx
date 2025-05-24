@@ -21,7 +21,7 @@ import {
   TagOutlined,
   HomeOutlined,
 } from '@ant-design/icons'
-import default_product_photo from '../assets/tools.jpg'
+import default_product_photo from '../assets/guitar.jpg'
 const { Title, Paragraph, Text } = Typography
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
