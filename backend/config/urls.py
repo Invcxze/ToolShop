@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("apps.urls"))
 ]
-if django.conf.settings.DEBUG:
-    urlpatterns += [
-        path('silk/', include('silk.urls', namespace='silk')),
-    ]
+# if django.conf.settings.DEBUG:
+#     urlpatterns += [
+#         path('silk/', include('silk.urls', namespace='silk')),
+#     ]
