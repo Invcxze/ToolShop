@@ -1,62 +1,112 @@
 import { useState } from 'react'
-import { Form, Input, Button, Typography, message } from 'antd'
+import { Form, Input, Button, Typography, message, Grid } from 'antd'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { login } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
 
 const { Title, Link } = Typography
+const { useBreakpoint } = Grid
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const screens = useBreakpoint()
   const navigate = useNavigate()
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: { email: string; password: string }) => {
     try {
+      setLoading(true)
       const data = await login(values.email, values.password)
       localStorage.setItem('token', data.data.user_token)
+      message.success('Добро пожаловать!')
       navigate('/')
     } catch (error) {
-      message.error('Ошибка входа')
+      message.error('Неверный email или пароль')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: 'auto', marginTop: 50 }}>
-      <Title level={3}>Вход</Title>
+    <div style={{
+      maxWidth: screens.xs ? '90%' : 400,
+      margin: 'auto',
+      padding: screens.xs ? '24px 0' : '40px 0',
+      minHeight: 'calc(100vh - 64px)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center'
+    }}>
+      <Title
+        level={screens.xs ? 3 : 1}
+        style={{
+          textAlign: 'center',
+          marginBottom: screens.xs ? 24 : 32,
+          fontSize: screens.xs ? 24 : 32
+        }}
+      >
+        Вход в аккаунт
+      </Title>
+
       <Form
         onFinish={handleSubmit}
-        initialValues={{ email, password }}
         layout="vertical"
+        size={screens.xs ? 'middle' : 'large'}
         style={{ width: '100%' }}
       >
         <Form.Item
-          label="Email"
           name="email"
-          rules={[{ required: true, message: 'Пожалуйста, введите ваш email!' }]}
+          rules={[
+            { required: true, message: 'Введите email' },
+            { type: 'email', message: 'Неверный формат email' }
+          ]}
         >
-          <Input value={email} onChange={e => setEmail(e.target.value)} />
+          <Input
+            prefix={<UserOutlined />}
+            placeholder="Email"
+            autoComplete="email"
+          />
         </Form.Item>
 
         <Form.Item
-          label="Пароль"
           name="password"
-          rules={[{ required: true, message: 'Пожалуйста, введите ваш пароль!' }]}
+          rules={[
+            { required: true, message: 'Введите пароль' },
+            { min: 6, message: 'Минимум 6 символов' }
+          ]}
         >
-          <Input.Password value={password} onChange={e => setPassword(e.target.value)} />
+          <Input.Password
+            prefix={<LockOutlined />}
+            placeholder="Пароль"
+            autoComplete="current-password"
+          />
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+        <Form.Item style={{ marginTop: 32 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            loading={loading}
+            style={{ height: screens.xs ? 44 : 40 }}
+          >
             Войти
           </Button>
         </Form.Item>
       </Form>
 
-      <div style={{ marginTop: 10, textAlign: 'center' }}>
+      <div style={{
+        marginTop: screens.xs ? 24 : 32,
+        textAlign: 'center',
+        fontSize: screens.xs ? 14 : 16
+      }}>
         <Typography.Text>
           Нет аккаунта?{' '}
-          <Link href="/register">
-            Зарегистрируйтесь
+          <Link
+            href="/register"
+            strong
+            style={{ color: '#1890ff' }}
+          >
+            Создать аккаунт
           </Link>
         </Typography.Text>
       </div>

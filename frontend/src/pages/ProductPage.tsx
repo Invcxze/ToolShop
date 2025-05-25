@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
   Button, Card, Row, Col, Typography, message,
-  Input, Select, Space, Tag
+  Input, Select, Space, Tag, Grid
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import default_product_photo from '../assets/guitar.jpeg'
+import default_product_photo from '../assets/guitar.jpeg';
+
 const { Title, Paragraph } = Typography;
+const { useBreakpoint } = Grid;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Product {
@@ -18,7 +20,6 @@ interface Product {
   manufacturer?: string | null;
 }
 
-/* ---------- utils ---------- */
 const S3_BASE_URL = "http://localhost:9000/local-bucket-shop/media";
 const getProductImage = (p: Product) => {
   if (!p.photo) return default_product_photo;
@@ -30,24 +31,20 @@ const getProductImage = (p: Product) => {
   }
 };
 
-/* ---------- страница ---------- */
 const ProductPage: React.FC = () => {
+  const screens = useBreakpoint();
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
-
   const [search, setSearch] = useState("");
   const [price, setPrice] = useState<[number, number]>([0, 1_000_000]);
   const [sort, setSort] = useState("name_asc");
-
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
   const [manufacturerOptions, setManufacturerOptions] = useState<string[]>([]);
   const [catFilter, setCatFilter] = useState<string | undefined>();
   const [manFilter, setManFilter] = useState<string | undefined>();
-
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  /* --- загрузка товаров --- */
   useEffect(() => {
     (async () => {
       try {
@@ -64,34 +61,17 @@ const ProductPage: React.FC = () => {
           category: p.category ?? null,
           manufacturer: p.manufacturer ?? null,
         }));
+
         setProducts(normalized);
         setFiltered(normalized);
-
-        setCategoryOptions(
-          Array.from(
-            new Set(
-              normalized
-                .map(p => p.category)
-                .filter((c): c is string => c != null)
-            )
-          ).sort()
-        );
-        setManufacturerOptions(
-          Array.from(
-            new Set(
-              normalized
-                .map(p => p.manufacturer)
-                .filter((m): m is string => m != null)
-            )
-          ).sort()
-        );
+        setCategoryOptions([...new Set(normalized.map(p => p.category).filter(Boolean)] as string[]);
+        setManufacturerOptions([...new Set(normalized.map(p => p.manufacturer).filter(Boolean)] as string[]);
       } catch {
         message.error("Не удалось загрузить товары");
       }
     })();
   }, []);
 
-  /* --- фильтрация + сортировка --- */
   const applyFilters = (
     searchText = search,
     priceRange = price,
@@ -99,33 +79,24 @@ const ProductPage: React.FC = () => {
     cat = catFilter,
     man = manFilter
   ) => {
-    let res = products
-      .filter(
-        p =>
-          p.name.toLowerCase().includes(searchText.toLowerCase()) &&
-          parseFloat(p.price) >= priceRange[0] &&
-          parseFloat(p.price) <= priceRange[1] &&
-          (!cat || p.category === cat) &&
-          (!man || p.manufacturer === man)
-      );
-
-    switch (sortOrder) {
-      case "price_asc":
-        res.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-        break;
-      case "price_desc":
-        res.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-        break;
-      case "name_desc":
-        res.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        res.sort((a, b) => a.name.localeCompare(b.name));
-    }
+    let res = products.filter(
+      p =>
+        p.name.toLowerCase().includes(searchText.toLowerCase()) &&
+        parseFloat(p.price) >= priceRange[0] &&
+        parseFloat(p.price) <= priceRange[1] &&
+        (!cat || p.category === cat) &&
+        (!man || p.manufacturer === man)
+    ).sort((a, b) => {
+      switch (sortOrder) {
+        case "price_asc": return parseFloat(a.price) - parseFloat(b.price);
+        case "price_desc": return parseFloat(b.price) - parseFloat(a.price);
+        case "name_desc": return b.name.localeCompare(a.name);
+        default: return a.name.localeCompare(b.name);
+      }
+    });
     setFiltered(res);
   };
 
-  /* --- добавить в корзину --- */
   const handleAddToCart = async (id: number) => {
     if (!token) return message.error("Авторизуйтесь!");
     try {
@@ -140,129 +111,153 @@ const ProductPage: React.FC = () => {
     }
   };
 
-  /* ---------- render ---------- */
   return (
-    <div style={{ maxWidth: 1200, margin: "auto", padding: 20 }}>
-      <Title level={1}>Товары</Title>
+    <div style={{
+      maxWidth: 1200,
+      margin: "auto",
+      padding: screens.xs ? 16 : 24
+    }}>
+      <Title
+        level={screens.xs ? 3 : 1}
+        style={{ marginBottom: screens.xs ? 16 : 24 }}
+      >
+        Каталог товаров
+      </Title>
 
-      {/* поиск */}
       <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Input
-            placeholder="Поиск по названию"
-            value={search}
-            onChange={e => {
-              const q = e.target.value;
-              setSearch(q);
-              applyFilters(q);
+        <Col xs={24} md={6}>
+          <Card
+            bordered={false}
+            style={{
+              background: '#fff',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              borderRadius: 8
             }}
-          />
-        </Col>
-      </Row>
+          >
+            <Title level={5} style={{ marginBottom: 16 }}>Фильтры</Title>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-        {/* ------------------ ФИЛЬТРЫ ------------------ */}
-        <Col span={6}>
-          <div style={{ border: "1px solid #e8e8e8", borderRadius: 8, padding: 20 }}>
-            <Title level={4}>Фильтры</Title>
+            <Input
+              placeholder="Поиск по названию"
+              value={search}
+              onChange={e => {
+                const q = e.target.value;
+                setSearch(q);
+                applyFilters(q);
+              }}
+              style={{ marginBottom: 16 }}
+            />
 
-            {/* ЦЕНА */}
-            <Title level={5}>Цена</Title>
-            <Space.Compact style={{ marginBottom: 16 }}>
+            <Space
+              direction={screens.xs ? "vertical" : "horizontal"}
+              style={{ width: '100%', marginBottom: 16 }}
+            >
               <Input
                 type="number"
-                placeholder="От"
+                placeholder="Цена от"
                 value={price[0]}
-                onChange={e =>
-                  setPrice([Number(e.target.value) || 0, price[1]])
-                }
+                onChange={e => setPrice([Number(e.target.value) || 0, price[1]])}
                 onBlur={() => applyFilters()}
+                style={{ width: screens.xs ? '100%' : '48%' }}
               />
               <Input
                 type="number"
-                placeholder="До"
+                placeholder="Цена до"
                 value={price[1]}
-                onChange={e =>
-                  setPrice([price[0], Number(e.target.value) || 1_000_000])
-                }
+                onChange={e => setPrice([price[0], Number(e.target.value) || 1_000_000])}
                 onBlur={() => applyFilters()}
+                style={{ width: screens.xs ? '100%' : '48%' }}
               />
-            </Space.Compact>
+            </Space>
 
-            {/* КАТЕГОРИЯ */}
-            <Title level={5}>Категория</Title>
             <Select
               allowClear
-              placeholder="Все"
+              placeholder="Категория"
               value={catFilter}
-              style={{ width: "100%", marginBottom: 16 }}
               options={categoryOptions.map(c => ({ value: c, label: c }))}
               onChange={v => {
                 setCatFilter(v);
                 applyFilters(search, price, sort, v, manFilter);
               }}
+              style={{ width: '100%', marginBottom: 16 }}
             />
 
-            {/* ПРОИЗВОДИТЕЛЬ */}
-            <Title level={5}>Производитель</Title>
             <Select
               allowClear
-              placeholder="Все"
+              placeholder="Производитель"
               value={manFilter}
-              style={{ width: "100%", marginBottom: 16 }}
               options={manufacturerOptions.map(m => ({ value: m, label: m }))}
               onChange={v => {
                 setManFilter(v);
                 applyFilters(search, price, sort, catFilter, v);
               }}
+              style={{ width: '100%', marginBottom: 16 }}
             />
 
-            {/* СОРТИРОВКА */}
-            <Title level={5}>Сортировать</Title>
             <Select
               value={sort}
-              style={{ width: "100%" }}
               onChange={v => {
                 setSort(v);
                 applyFilters(search, price, v);
               }}
               options={[
-                { value: "name_asc", label: "Название (A‑Z)" },
-                { value: "name_desc", label: "Название (Z‑A)" },
-                { value: "price_asc", label: "Цена (↑)" },
-                { value: "price_desc", label: "Цена (↓)" },
+                { value: "name_asc", label: "Название (А-Я)" },
+                { value: "name_desc", label: "Название (Я-А)" },
+                { value: "price_asc", label: "Цена по возрастанию" },
+                { value: "price_desc", label: "Цена по убыванию" },
               ]}
+              style={{ width: '100%' }}
             />
-          </div>
+          </Card>
         </Col>
 
-        {/* ------------------ ТОВАРЫ ------------------ */}
-        <Col span={18}>
+        <Col xs={24} md={18}>
           <Row gutter={[16, 16]}>
             {filtered.length === 0 ? (
-              <Col span={24}>
-                <Title level={3}>Нет товаров</Title>
+              <Col span={24} style={{ textAlign: 'center', padding: 40 }}>
+                <Title level={4}>Товары не найдены</Title>
+                <Paragraph type="secondary">Попробуйте изменить параметры фильтров</Paragraph>
               </Col>
             ) : (
               filtered.map(p => (
-                <Col span={8} key={p.id}>
+                <Col
+                  key={p.id}
+                  xs={24}
+                  sm={12}
+                  md={8}
+                  lg={6}
+                  style={{ marginBottom: 16 }}
+                >
                   <Card
                     hoverable
                     onClick={() => navigate(`/products/${p.id}`)}
                     cover={
-                      <img
-                        src={getProductImage(p)}
-                        alt={p.name}
-                        style={{ width: "100%", height: 260, objectFit: "cover" }}
-                        onError={e => {
-                          (e.currentTarget as HTMLImageElement).src = default_product_photo;
-                          e.currentTarget.style.objectFit = "contain";
-                        }}
-                      />
+                      <div style={{
+                        position: 'relative',
+                        paddingTop: '100%',
+                        backgroundColor: '#fafafa'
+                      }}>
+                        <img
+                          src={getProductImage(p)}
+                          alt={p.name}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            padding: 8
+                          }}
+                          onError={e => {
+                            (e.currentTarget as HTMLImageElement).src = default_product_photo;
+                          }}
+                        />
+                      </div>
                     }
                     actions={[
                       <Button
                         type="primary"
+                        block
                         onClick={e => {
                           e.stopPropagation();
                           handleAddToCart(p.id);
@@ -271,21 +266,64 @@ const ProductPage: React.FC = () => {
                         В корзину
                       </Button>,
                     ]}
+                    bodyStyle={{ padding: 16 }}
                   >
-                    <Title level={4}>{p.name}</Title>
+                    <Title
+                      level={5}
+                      style={{
+                        marginBottom: 8,
+                        height: screens.xs ? 'auto' : 48,
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {p.name}
+                    </Title>
 
-                    <Paragraph ellipsis={{ rows: 2 }} style={{ minHeight: 48 }}>
+                    <Paragraph
+                      ellipsis={{ rows: 2 }}
+                      style={{
+                        fontSize: screens.xs ? 14 : 16,
+                        color: '#666',
+                        minHeight: 48
+                      }}
+                    >
                       {p.description}
                     </Paragraph>
 
-                    {/* выводим категорию и производителя, если есть */}
-                    <Space size="small" wrap>
-                      {p.category && <Tag color="blue">{p.category}</Tag>}
-                      {p.manufacturer && <Tag color="green">{p.manufacturer}</Tag>}
+                    <Space size={4} wrap style={{ margin: '8px 0' }}>
+                      {p.category && (
+                        <Tag
+                          color="blue"
+                          style={{
+                            margin: 0,
+                            fontSize: screens.xs ? 12 : 14
+                          }}
+                        >
+                          {p.category}
+                        </Tag>
+                      )}
+                      {p.manufacturer && (
+                        <Tag
+                          color="green"
+                          style={{
+                            margin: 0,
+                            fontSize: screens.xs ? 12 : 14
+                          }}
+                        >
+                          {p.manufacturer}
+                        </Tag>
+                      )}
                     </Space>
 
-                    <Paragraph strong style={{ marginTop: 8 }}>
-                      Цена: ${p.price}
+                    <Paragraph
+                      strong
+                      style={{
+                        fontSize: screens.xs ? 16 : 18,
+                        color: '#1890ff',
+                        margin: 0
+                      }}
+                    >
+                      ${parseFloat(p.price).toFixed(2)}
                     </Paragraph>
                   </Card>
                 </Col>

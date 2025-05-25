@@ -1,71 +1,125 @@
 import { useState } from 'react'
-import { Form, Input, Button, Typography, message } from 'antd'
+import { Form, Input, Button, Typography, message, Grid } from 'antd'
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons'
 import { register } from '../api/auth'
 import { useNavigate } from 'react-router-dom'
 
 const { Title, Link } = Typography
+const { useBreakpoint } = Grid
 
 export default function RegisterPage() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const screens = useBreakpoint()
   const navigate = useNavigate()
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: { name: string; email: string; password: string }) => {
     try {
+      setLoading(true)
       await register(values.name, values.email, values.password)
-      message.success('Успешно зарегистрировано')
+      message.success('Регистрация прошла успешно!')
       navigate('/login')
     } catch (error) {
-      message.error('Ошибка регистрации')
+      message.error(error instanceof Error ? error.message : 'Ошибка регистрации')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: 'auto', marginTop: 50 }}>
-      <Title level={3}>Регистрация</Title>
+    <div style={{
+      maxWidth: screens.xs ? '90%' : 400,
+      margin: 'auto',
+      padding: screens.xs ? '24px 0' : '40px 0',
+      minHeight: 'calc(100vh - 64px)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center'
+    }}>
+      <Title
+        level={screens.xs ? 3 : 1}
+        style={{
+          textAlign: 'center',
+          marginBottom: screens.xs ? 24 : 32,
+          fontSize: screens.xs ? 24 : 32
+        }}
+      >
+        Создать аккаунт
+      </Title>
+
       <Form
         onFinish={handleSubmit}
-        initialValues={{ name, email, password }}
         layout="vertical"
+        size={screens.xs ? 'middle' : 'large'}
         style={{ width: '100%' }}
       >
         <Form.Item
-          label="Имя"
           name="name"
-          rules={[{ required: true, message: 'Пожалуйста, введите ваше имя!' }]}
+          rules={[
+            { required: true, message: 'Введите ваше имя' },
+            { min: 2, message: 'Минимум 2 символа' }
+          ]}
         >
-          <Input value={name} onChange={e => setName(e.target.value)} />
+          <Input
+            prefix={<UserOutlined />}
+            placeholder="Имя"
+            autoComplete="name"
+          />
         </Form.Item>
 
         <Form.Item
-          label="Email"
           name="email"
-          rules={[{ required: true, message: 'Пожалуйста, введите ваш email!' }]}
+          rules={[
+            { required: true, message: 'Введите email' },
+            { type: 'email', message: 'Неверный формат email' }
+          ]}
         >
-          <Input value={email} onChange={e => setEmail(e.target.value)} />
+          <Input
+            prefix={<MailOutlined />}
+            placeholder="Email"
+            autoComplete="email"
+          />
         </Form.Item>
 
         <Form.Item
-          label="Пароль"
           name="password"
-          rules={[{ required: true, message: 'Пожалуйста, введите ваш пароль!' }]}
+          rules={[
+            { required: true, message: 'Введите пароль' },
+            { min: 6, message: 'Минимум 6 символов' }
+          ]}
         >
-          <Input.Password value={password} onChange={e => setPassword(e.target.value)} />
+          <Input.Password
+            prefix={<LockOutlined />}
+            placeholder="Пароль"
+            autoComplete="new-password"
+          />
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+        <Form.Item style={{ marginTop: 32 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            loading={loading}
+            style={{ height: screens.xs ? 44 : 40 }}
+          >
             Зарегистрироваться
           </Button>
         </Form.Item>
       </Form>
 
-      <div style={{ marginTop: 10, textAlign: 'center' }}>
+      <div style={{
+        marginTop: screens.xs ? 24 : 32,
+        textAlign: 'center',
+        fontSize: screens.xs ? 14 : 16
+      }}>
         <Typography.Text>
           Уже есть аккаунт?{' '}
-          <Link href="/login">
-            Войдите
+          <Link
+            href="/login"
+            strong
+            style={{ color: '#1890ff' }}
+          >
+            Войти
           </Link>
         </Typography.Text>
       </div>

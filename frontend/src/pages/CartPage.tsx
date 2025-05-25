@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Row, Col, Typography, message, Tag } from 'antd'
+import { Button, Card, Row, Col, Typography, message, Tag, Grid } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import default_product_photo from '../assets/guitar.jpeg'
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 const { Title, Paragraph } = Typography
+const { useBreakpoint } = Grid
 
 interface Product {
   id: number
@@ -19,6 +20,7 @@ interface Product {
 const CartPage: React.FC = () => {
   const [cart, setCart] = useState<Product[]>([])
   const navigate = useNavigate()
+  const screens = useBreakpoint()
   const token = localStorage.getItem('token')
 
   useEffect(() => {
@@ -96,63 +98,172 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: 1200, margin: 'auto', padding: 20 }}>
-      <Title level={1}>Корзина</Title>
+    <div style={{
+      maxWidth: 1200,
+      margin: 'auto',
+      padding: screens.xs ? 16 : 24,
+      minHeight: 'calc(100vh - 64px)'
+    }}>
+      <Title
+        level={screens.xs ? 2 : 1}
+        style={{
+          marginBottom: screens.xs ? 16 : 24,
+          textAlign: 'center'
+        }}
+      >
+        🛒 Корзина
+      </Title>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[screens.xs ? 8 : 16, screens.xs ? 16 : 24]}>
         {cart.length === 0 ? (
-          <Col span={24}>
-            <Title level={3}>Корзина пуста</Title>
-            <Button type="primary" onClick={() => navigate('/products')} style={{ marginTop: 20 }}>
+          <Col span={24} style={{ textAlign: 'center' }}>
+            <Title level={4} style={{ color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>
+              Ваша корзина пуста
+            </Title>
+            <Button
+              type="primary"
+              onClick={() => navigate('/products')}
+              size={screens.xs ? 'middle' : 'large'}
+              style={{ width: screens.xs ? '100%' : 'auto' }}
+            >
               Перейти к товарам
             </Button>
           </Col>
         ) : (
           cart.map(product => (
-            <Col span={8} key={product.id}>
+            <Col
+              key={product.id}
+              xs={24}
+              sm={12}
+              md={8}
+              lg={8}
+              xl={6}
+              style={{ marginBottom: screens.xs ? 8 : 16 }}
+            >
               <Card
                 hoverable
                 cover={
-                  <img
-                    alt={product.name}
-                    src={getProductImage(product)}
-                    style={{
-                      objectFit: 'cover',
-                      height: 200,
-                      width: '100%',
-                      borderTopLeftRadius: 4,
-                      borderTopRightRadius: 4,
-                      backgroundColor: '#f0f0f0',
-                    }}
-                    onError={e => {
-                      ;(e.currentTarget as HTMLImageElement).src = default_product_photo
-                      e.currentTarget.style.objectFit = 'contain'
-                    }}
-                  />
+                  <div style={{
+                    position: 'relative',
+                    paddingTop: '56.25%',
+                    backgroundColor: '#fafafa',
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                    overflow: 'hidden'
+                  }}>
+                    <img
+                      alt={product.name}
+                      src={getProductImage(product)}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        padding: screens.xs ? 4 : 8
+                      }}
+                      onError={e => {
+                        const target = e.currentTarget as HTMLImageElement
+                        target.src = default_product_photo
+                        target.style.objectFit = 'contain'
+                        target.style.padding = '20px'
+                      }}
+                    />
+                  </div>
                 }
                 actions={[
-                  <Button danger onClick={() => handleRemoveFromCart(product.id)} key="delete">
+                  <Button
+                    danger
+                    onClick={() => handleRemoveFromCart(product.id)}
+                    key="delete"
+                    size={screens.xs ? 'small' : 'middle'}
+                    block={screens.xs}
+                    icon={<i className="anticon anticon-delete" />}
+                  >
                     Удалить
                   </Button>,
                 ]}
+                bodyStyle={{
+                  padding: screens.xs ? 12 : 16,
+                  height: screens.xs ? 'auto' : 240,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between'
+                }}
               >
-                <Title level={4}>{product.name}</Title>
+                <div>
+                  <Title
+                    level={screens.xs ? 5 : 4}
+                    style={{
+                      marginBottom: 8,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {product.name}
+                  </Title>
 
-                <div style={{ marginBottom: 8 }}>
-                  {product.category && (
-                    <Tag color="blue" style={{ marginRight: 4 }}>
-                      {product.category}
-                    </Tag>
-                  )}
-                  {product.manufacturer && <Tag color="volcano">{product.manufacturer}</Tag>}
+                  <div style={{
+                    marginBottom: 8,
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 4
+                  }}>
+                    {product.category && (
+                      <Tag
+                        color="geekblue"
+                        style={{
+                          margin: 0,
+                          fontSize: screens.xs ? 12 : 14,
+                          borderRadius: 4
+                        }}
+                      >
+                        {product.category}
+                      </Tag>
+                    )}
+                    {product.manufacturer && (
+                      <Tag
+                        color="volcano"
+                        style={{
+                          margin: 0,
+                          fontSize: screens.xs ? 12 : 14,
+                          borderRadius: 4
+                        }}
+                      >
+                        {product.manufacturer}
+                      </Tag>
+                    )}
+                  </div>
+
+                  <Paragraph
+                    ellipsis={{
+                      rows: screens.xs ? 2 : 3,
+                      expandable: true,
+                      symbol: 'Подробнее'
+                    }}
+                    style={{
+                      fontSize: screens.xs ? 14 : 16,
+                      color: 'rgba(0,0,0,0.65)',
+                      flexGrow: 1,
+                      marginBottom: 8
+                    }}
+                  >
+                    {product.description}
+                  </Paragraph>
                 </div>
 
-                {/* описание */}
-                <Paragraph ellipsis={{ rows: 3 }} style={{ marginBottom: 8, minHeight: 66 }}>
-                  {product.description}
+                <Paragraph
+                  strong
+                  style={{
+                    fontSize: screens.xs ? 16 : 18,
+                    margin: 0,
+                    color: '#1890ff'
+                  }}
+                >
+                  Цена: ${parseFloat(product.price).toFixed(2)}
                 </Paragraph>
-
-                <Paragraph strong>Цена: ${parseFloat(product.price).toFixed(2)}</Paragraph>
               </Card>
             </Col>
           ))
@@ -160,9 +271,24 @@ const CartPage: React.FC = () => {
       </Row>
 
       {cart.length > 0 && (
-        <Button type="primary" onClick={handleCheckout} style={{ marginTop: 20 }}>
-          Оформить заказ
-        </Button>
+        <div style={{
+          marginTop: screens.xs ? 24 : 32,
+          textAlign: 'center'
+        }}>
+          <Button
+            type="primary"
+            onClick={handleCheckout}
+            size={screens.xs ? 'large' : 'middle'}
+            style={{
+              width: screens.xs ? '100%' : 'auto',
+              paddingLeft: 40,
+              paddingRight: 40,
+              height: screens.xs ? 48 : 40
+            }}
+          >
+            🚀 Оформить заказ
+          </Button>
+        </div>
       )}
     </div>
   )
