@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Button, Card, Row, Col, Typography, message,
-  Input, Select, Space, Tag, Grid
+  Input, Select, Space, Grid
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import default_product_photo from '../assets/guitar.jpeg';
@@ -64,10 +64,9 @@ const ProductPage: React.FC = () => {
 
         setProducts(normalized);
         setFiltered(normalized);
-        setCategoryOptions([...new Set(normalized.map(p => p.category).filter(Boolean)] as string[]));
-        setManufacturerOptions([...new Set(normalized.map(p => p.manufacturer))].filter(Boolean) as string[]);
-        }
-        catch {
+        setCategoryOptions([...new Set(normalized.map(p => p.category).filter(Boolean))] as string[]);
+        setManufacturerOptions([...new Set(normalized.map(p => p.manufacturer).filter(Boolean))] as string[]);
+      } catch {
         message.error("Не удалось загрузить товары");
       }
     })();
@@ -265,68 +264,9 @@ const ProductPage: React.FC = () => {
                         }}
                       >
                         В корзину
-                      </Button>,
+                      </Button>
                     ]}
-                    bodyStyle={{ padding: 16 }}
-                  >
-                    <Title
-                      level={5}
-                      style={{
-                        marginBottom: 8,
-                        height: screens.xs ? 'auto' : 48,
-                        overflow: 'hidden'
-                      }}
-                    >
-                      {p.name}
-                    </Title>
-
-                    <Paragraph
-                      ellipsis={{ rows: 2 }}
-                      style={{
-                        fontSize: screens.xs ? 14 : 16,
-                        color: '#666',
-                        minHeight: 48
-                      }}
-                    >
-                      {p.description}
-                    </Paragraph>
-
-                    <Space size={4} wrap style={{ margin: '8px 0' }}>
-                      {p.category && (
-                        <Tag
-                          color="blue"
-                          style={{
-                            margin: 0,
-                            fontSize: screens.xs ? 12 : 14
-                          }}
-                        >
-                          {p.category}
-                        </Tag>
-                      )}
-                      {p.manufacturer && (
-                        <Tag
-                          color="green"
-                          style={{
-                            margin: 0,
-                            fontSize: screens.xs ? 12 : 14
-                          }}
-                        >
-                          {p.manufacturer}
-                        </Tag>
-                      )}
-                    </Space>
-
-                    <Paragraph
-                      strong
-                      style={{
-                        fontSize: screens.xs ? 16 : 18,
-                        color: '#1890ff',
-                        margin: 0
-                      }}
-                    >
-                      ${parseFloat(p.price).toFixed(2)}
-                    </Paragraph>
-                  </Card>
+                  />
                 </Col>
               ))
             )}
