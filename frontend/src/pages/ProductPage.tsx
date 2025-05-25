@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from "react";
 import {
-  Button, Card, Row, Col, Typography, message,
-  Input, Select, Space, Grid
+  Button,
+  Card,
+  Row,
+  Col,
+  Typography,
+  message,
+  Input,
+  Select,
+  Space,
+  Grid,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import default_product_photo from '../assets/guitar.jpeg';
+import default_product_photo from "../assets/guitar.jpeg";
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -14,7 +22,7 @@ interface Product {
   id: number;
   name: string;
   description: string;
-  price: string;
+  price: number;
   photo: string | null;
   category?: string | null;
   manufacturer?: string | null;
@@ -56,7 +64,7 @@ const ProductPage: React.FC = () => {
           id: p.id,
           name: p.name,
           description: p.description,
-          price: p.price,
+          price: Number(p.price),
           photo: p.photo,
           category: p.category ?? null,
           manufacturer: p.manufacturer ?? null,
@@ -64,8 +72,18 @@ const ProductPage: React.FC = () => {
 
         setProducts(normalized);
         setFiltered(normalized);
-        setCategoryOptions([...new Set(normalized.map(p => p.category).filter(Boolean))] as string[]);
-        setManufacturerOptions([...new Set(normalized.map(p => p.manufacturer).filter(Boolean))] as string[]);
+
+        const categories = [
+          ...new Set(normalized.map((p) => p.category).filter((c) => c != null)),
+        ] as string[];
+        const manufacturers = [
+          ...new Set(
+            normalized.map((p) => p.manufacturer).filter((m) => m != null)
+          ),
+        ] as string[];
+
+        setCategoryOptions(categories);
+        setManufacturerOptions(manufacturers);
       } catch {
         message.error("Не удалось загрузить товары");
       }
@@ -79,21 +97,27 @@ const ProductPage: React.FC = () => {
     cat = catFilter,
     man = manFilter
   ) => {
-    let res = products.filter(
-      p =>
-        p.name.toLowerCase().includes(searchText.toLowerCase()) &&
-        parseFloat(p.price) >= priceRange[0] &&
-        parseFloat(p.price) <= priceRange[1] &&
-        (!cat || p.category === cat) &&
-        (!man || p.manufacturer === man)
-    ).sort((a, b) => {
-      switch (sortOrder) {
-        case "price_asc": return parseFloat(a.price) - parseFloat(b.price);
-        case "price_desc": return parseFloat(b.price) - parseFloat(a.price);
-        case "name_desc": return b.name.localeCompare(a.name);
-        default: return a.name.localeCompare(b.name);
-      }
-    });
+    let res = products
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(searchText.toLowerCase()) &&
+          p.price >= priceRange[0] &&
+          p.price <= priceRange[1] &&
+          (!cat || p.category === cat) &&
+          (!man || p.manufacturer === man)
+      )
+      .sort((a, b) => {
+        switch (sortOrder) {
+          case "price_asc":
+            return a.price - b.price;
+          case "price_desc":
+            return b.price - a.price;
+          case "name_desc":
+            return b.name.localeCompare(a.name);
+          default:
+            return a.name.localeCompare(b.name);
+        }
+      });
     setFiltered(res);
   };
 
@@ -112,11 +136,13 @@ const ProductPage: React.FC = () => {
   };
 
   return (
-    <div style={{
-      maxWidth: 1200,
-      margin: "auto",
-      padding: screens.xs ? 16 : 24
-    }}>
+    <div
+      style={{
+        maxWidth: 1200,
+        margin: "auto",
+        padding: screens.xs ? 16 : 24,
+      }}
+    >
       <Title
         level={screens.xs ? 3 : 1}
         style={{ marginBottom: screens.xs ? 16 : 24 }}
@@ -129,17 +155,19 @@ const ProductPage: React.FC = () => {
           <Card
             bordered={false}
             style={{
-              background: '#fff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              borderRadius: 8
+              background: "#fff",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              borderRadius: 8,
             }}
           >
-            <Title level={5} style={{ marginBottom: 16 }}>Фильтры</Title>
+            <Title level={5} style={{ marginBottom: 16 }}>
+              Фильтры
+            </Title>
 
             <Input
               placeholder="Поиск по названию"
               value={search}
-              onChange={e => {
+              onChange={(e) => {
                 const q = e.target.value;
                 setSearch(q);
                 applyFilters(q);
@@ -149,23 +177,27 @@ const ProductPage: React.FC = () => {
 
             <Space
               direction={screens.xs ? "vertical" : "horizontal"}
-              style={{ width: '100%', marginBottom: 16 }}
+              style={{ width: "100%", marginBottom: 16 }}
             >
               <Input
                 type="number"
                 placeholder="Цена от"
                 value={price[0]}
-                onChange={e => setPrice([Number(e.target.value) || 0, price[1]])}
+                onChange={(e) =>
+                  setPrice([Number(e.target.value) || 0, price[1]])
+                }
                 onBlur={() => applyFilters()}
-                style={{ width: screens.xs ? '100%' : '48%' }}
+                style={{ width: screens.xs ? "100%" : "48%" }}
               />
               <Input
                 type="number"
                 placeholder="Цена до"
                 value={price[1]}
-                onChange={e => setPrice([price[0], Number(e.target.value) || 1_000_000])}
+                onChange={(e) =>
+                  setPrice([price[0], Number(e.target.value) || 1_000_000])
+                }
                 onBlur={() => applyFilters()}
-                style={{ width: screens.xs ? '100%' : '48%' }}
+                style={{ width: screens.xs ? "100%" : "48%" }}
               />
             </Space>
 
@@ -173,29 +205,29 @@ const ProductPage: React.FC = () => {
               allowClear
               placeholder="Категория"
               value={catFilter}
-              options={categoryOptions.map(c => ({ value: c, label: c }))}
-              onChange={v => {
+              options={categoryOptions.map((c) => ({ value: c, label: c }))}
+              onChange={(v) => {
                 setCatFilter(v);
                 applyFilters(search, price, sort, v, manFilter);
               }}
-              style={{ width: '100%', marginBottom: 16 }}
+              style={{ width: "100%", marginBottom: 16 }}
             />
 
             <Select
               allowClear
               placeholder="Производитель"
               value={manFilter}
-              options={manufacturerOptions.map(m => ({ value: m, label: m }))}
-              onChange={v => {
+              options={manufacturerOptions.map((m) => ({ value: m, label: m }))}
+              onChange={(v) => {
                 setManFilter(v);
                 applyFilters(search, price, sort, catFilter, v);
               }}
-              style={{ width: '100%', marginBottom: 16 }}
+              style={{ width: "100%", marginBottom: 16 }}
             />
 
             <Select
               value={sort}
-              onChange={v => {
+              onChange={(v) => {
                 setSort(v);
                 applyFilters(search, price, v);
               }}
@@ -205,7 +237,7 @@ const ProductPage: React.FC = () => {
                 { value: "price_asc", label: "Цена по возрастанию" },
                 { value: "price_desc", label: "Цена по убыванию" },
               ]}
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             />
           </Card>
         </Col>
@@ -213,12 +245,14 @@ const ProductPage: React.FC = () => {
         <Col xs={24} md={18}>
           <Row gutter={[16, 16]}>
             {filtered.length === 0 ? (
-              <Col span={24} style={{ textAlign: 'center', padding: 40 }}>
+              <Col span={24} style={{ textAlign: "center", padding: 40 }}>
                 <Title level={4}>Товары не найдены</Title>
-                <Paragraph type="secondary">Попробуйте изменить параметры фильтров</Paragraph>
+                <Paragraph type="secondary">
+                  Попробуйте изменить параметры фильтров
+                </Paragraph>
               </Col>
             ) : (
-              filtered.map(p => (
+              filtered.map((p) => (
                 <Col
                   key={p.id}
                   xs={24}
@@ -231,25 +265,28 @@ const ProductPage: React.FC = () => {
                     hoverable
                     onClick={() => navigate(`/products/${p.id}`)}
                     cover={
-                      <div style={{
-                        position: 'relative',
-                        paddingTop: '100%',
-                        backgroundColor: '#fafafa'
-                      }}>
+                      <div
+                        style={{
+                          position: "relative",
+                          paddingTop: "100%",
+                          backgroundColor: "#fafafa",
+                        }}
+                      >
                         <img
                           src={getProductImage(p)}
                           alt={p.name}
                           style={{
-                            position: 'absolute',
+                            position: "absolute",
                             top: 0,
                             left: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                            padding: 8
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                            padding: 8,
                           }}
-                          onError={e => {
-                            (e.currentTarget as HTMLImageElement).src = default_product_photo;
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src =
+                              default_product_photo;
                           }}
                         />
                       </div>
@@ -258,15 +295,32 @@ const ProductPage: React.FC = () => {
                       <Button
                         type="primary"
                         block
-                        onClick={e => {
+                        onClick={(e) => {
                           e.stopPropagation();
                           handleAddToCart(p.id);
                         }}
                       >
                         В корзину
-                      </Button>
+                      </Button>,
                     ]}
-                  />
+                  >
+                    <Card.Meta
+                      title={p.name}
+                      description={
+                        <>
+                          <Paragraph
+                            ellipsis={{ rows: 2 }}
+                            style={{ marginBottom: 8, fontSize: 12 }}
+                          >
+                            {p.description}
+                          </Paragraph>
+                          <Text strong style={{ fontSize: 16 }}>
+                            ${p.price.toFixed(2)}
+                          </Text>
+                        </>
+                      }
+                    />
+                  </Card>
                 </Col>
               ))
             )}
