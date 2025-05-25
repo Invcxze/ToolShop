@@ -180,8 +180,9 @@ const ProductPage: React.FC = () => {
               style={{ width: "100%", marginBottom: 16 }}
             >
               <Input
+                addonBefore="От"
                 type="number"
-                placeholder="Цена от"
+                placeholder="0"
                 value={price[0]}
                 onChange={(e) =>
                   setPrice([Number(e.target.value) || 0, price[1]])
@@ -190,8 +191,9 @@ const ProductPage: React.FC = () => {
                 style={{ width: screens.xs ? "100%" : "48%" }}
               />
               <Input
+                addonBefore="До"
                 type="number"
-                placeholder="Цена до"
+                placeholder="1000000"
                 value={price[1]}
                 onChange={(e) =>
                   setPrice([price[0], Number(e.target.value) || 1_000_000])
