@@ -28,8 +28,38 @@ const Header = () => {
     setSelectedKeys([pathToKey[location.pathname] || ''])
   }, [location.pathname])
 
-  const handleLogout = async () => {
-    // ... существующая реализация logout ...
+    const handleLogout = async () => {
+    if (!token) {
+      message.error('Пользователь не авторизован!')
+      return
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/users/logout/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Ошибка при выходе из системы')
+      }
+
+      localStorage.removeItem('token')
+      message.success('Вы успешно вышли')
+      navigate('/login')
+    } catch (error) {
+      console.error('Ошибка при выходе:', error)
+
+      // Явная проверка типа ошибки
+      if (error instanceof Error) {
+        message.error(error.message)
+      } else {
+        message.error('Не удалось выйти из системы')
+      }
+    }
   }
 
   const menuItems = [

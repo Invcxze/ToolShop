@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { message, Layout, Typography } from 'antd'  // Добавляем import message
+import { message, Layout, Typography, Grid } from 'antd'
 
 import 'antd/dist/reset.css'
 
@@ -13,7 +13,7 @@ import OrdersPage from './pages/OrdersPage'
 import ProductPage from './pages/ProductPage'
 import Header from './components/header'
 import ProductDetailPage from './pages/ProductDetailPage'
-
+const { useBreakpoint } = Grid
 message.config({
   top: 100,
   duration: 200,
