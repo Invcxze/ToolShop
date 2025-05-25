@@ -175,33 +175,36 @@ const ProductPage: React.FC = () => {
               style={{ marginBottom: 16 }}
             />
 
-            <Space
-              direction={screens.xs ? "vertical" : "horizontal"}
-              style={{ width: "100%", marginBottom: 16 }}
-            >
-              <Input
-                addonBefore="От"
-                type="number"
-                placeholder="0"
-                value={price[0]}
-                onChange={(e) =>
-                  setPrice([Number(e.target.value) || 0, price[1]])
-                }
-                onBlur={() => applyFilters()}
-                style={{ width: screens.xs ? "100%" : "48%" }}
-              />
-              <Input
-                addonBefore="До"
-                type="number"
-                placeholder="1000000"
-                value={price[1]}
-                onChange={(e) =>
-                  setPrice([price[0], Number(e.target.value) || 1_000_000])
-                }
-                onBlur={() => applyFilters()}
-                style={{ width: screens.xs ? "100%" : "48%" }}
-              />
-            </Space>
+            <div style={{ marginBottom: 16 }}>
+              <Row gutter={8}>
+                <Col xs={24} sm={12} style={{ marginBottom: screens.xs ? 8 : 0 }}>
+                  <Input
+                    addonBefore="От"
+                    type="number"
+                    placeholder="0"
+                    value={price[0]}
+                    onChange={(e) =>
+                      setPrice([Number(e.target.value) || 0, price[1]])
+                    }
+                    onBlur={() => applyFilters()}
+                    style={{ width: "100%" }}
+                  />
+                </Col>
+                <Col xs={24} sm={12}>
+                  <Input
+                    addonBefore="До"
+                    type="number"
+                    placeholder="1000000"
+                    value={price[1]}
+                    onChange={(e) =>
+                      setPrice([price[0], Number(e.target.value) || 1_000_000])
+                    }
+                    onBlur={() => applyFilters()}
+                    style={{ width: "100%" }}
+                  />
+                </Col>
+              </Row>
+            </div>
 
             <Select
               allowClear
