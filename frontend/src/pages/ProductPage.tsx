@@ -64,9 +64,10 @@ const ProductPage: React.FC = () => {
 
         setProducts(normalized);
         setFiltered(normalized);
-        setCategoryOptions([...new Set(normalized.map(p => p.category).filter(Boolean)] as string[]);
-        setManufacturerOptions([...new Set(normalized.map(p => p.manufacturer).filter(Boolean)] as string[]);
-      } catch {
+        setCategoryOptions([...new Set(normalized.map(p => p.category).filter(Boolean)] as string[]));
+        setManufacturerOptions([...new Set(normalized.map(p => p.manufacturer))].filter(Boolean) as string[]);
+        }
+        catch {
         message.error("Не удалось загрузить товары");
       }
     })();
