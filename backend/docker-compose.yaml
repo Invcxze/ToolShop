@@ -9,7 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     container_name: shop-backend
-    command: python manage.py runserver 0.0.0.0:8000 --settings=config.settings.dev
+    command: sh -c "python manage.py migrate --settings=config.settings.dev && python manage.py runserver 0.0.0.0:8000 --settings=config.settings.dev"
     volumes:
       - .:/app
     ports:
