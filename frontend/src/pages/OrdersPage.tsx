@@ -64,7 +64,7 @@ const OrdersPage: React.FC = () => {
     fetchOrders()
   }, [])
 
-const S3_BASE_URL = "http://minio:9000/local-bucket-shop/media";
+const S3_BASE_URL = "http://172.19.0.2:9001/local-bucket-shop/media";
 
   const getProductImage = (product: Product) => {
     if (!product.photo) return default_product_photo
