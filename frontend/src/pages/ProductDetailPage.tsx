@@ -18,7 +18,6 @@ import {
 import {
   ShoppingCartOutlined,
   ArrowLeftOutlined,
-  DollarOutlined,
   TagOutlined,
   HomeOutlined
 } from '@ant-design/icons'
@@ -268,7 +267,7 @@ const ProductDetailPage: React.FC = () => {
                 color: '#1890ff'
               }}
             >
-              <DollarOutlined /> {product.price}
+               {product.price} ₽
             </Paragraph>
 
             <Button
