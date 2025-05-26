@@ -143,17 +143,20 @@ const ProductPage: React.FC = () => {
       style={{
         maxWidth: 1200,
         margin: "auto",
-        padding: screens.xs ? 16 : 24,
+        padding: screens.xs ? "0 12px" : "0 24px",
       }}
     >
       <Title
         level={screens.xs ? 3 : 1}
-        style={{ marginBottom: screens.xs ? 16 : 24 }}
+        style={{
+          marginBottom: screens.xs ? 16 : 24,
+          paddingTop: screens.xs ? 16 : 24
+        }}
       >
         Каталог товаров
       </Title>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]} style={{ margin: screens.xs ? 0 : 'initial' }}>
         <Col xs={24} md={6}>
           <Card
             bordered={false}
@@ -161,9 +164,13 @@ const ProductPage: React.FC = () => {
               background: "#fff",
               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               borderRadius: 8,
+              marginBottom: screens.xs ? 16 : 0
             }}
           >
-            <Title level={5} style={{ marginBottom: 16 }}>
+            <Title level={5} style={{
+              marginBottom: 16,
+              fontSize: screens.xs ? '16px' : '14px'
+            }}>
               Фильтры
             </Title>
 
@@ -175,14 +182,17 @@ const ProductPage: React.FC = () => {
                 setSearch(q);
                 applyFilters(q);
               }}
-              style={{ marginBottom: 16 }}
+              style={{
+                marginBottom: 16,
+                fontSize: screens.xs ? 14 : 16
+              }}
             />
 
             <div style={{ marginBottom: 16 }}>
-              <Row gutter={8}>
-                <Col xs={24} sm={12} style={{ marginBottom: screens.xs ? 8 : 0 }}>
+              <Row gutter={[8, 8]}>
+                <Col xs={24} sm={12} style={{ marginBottom: 8 }}>
                   <Input
-                    addonBefore="От"
+                    addonBefore={<Text style={{ fontSize: screens.xs ? 12 : 14 }}>От</Text>}
                     type="number"
                     placeholder="0"
                     value={price[0]}
@@ -190,12 +200,15 @@ const ProductPage: React.FC = () => {
                       setPrice([Number(e.target.value) || 0, price[1]])
                     }
                     onBlur={() => applyFilters()}
-                    style={{ width: "100%" }}
+                    style={{
+                      width: "100%",
+                      fontSize: screens.xs ? 12 : 14
+                    }}
                   />
                 </Col>
                 <Col xs={24} sm={12}>
                   <Input
-                    addonBefore="До"
+                    addonBefore={<Text style={{ fontSize: screens.xs ? 12 : 14 }}>До</Text>}
                     type="number"
                     placeholder="1000000"
                     value={price[1]}
@@ -203,7 +216,10 @@ const ProductPage: React.FC = () => {
                       setPrice([price[0], Number(e.target.value) || 1_000_000])
                     }
                     onBlur={() => applyFilters()}
-                    style={{ width: "100%" }}
+                    style={{
+                      width: "100%",
+                      fontSize: screens.xs ? 12 : 14
+                    }}
                   />
                 </Col>
               </Row>
@@ -218,7 +234,12 @@ const ProductPage: React.FC = () => {
                 setCatFilter(v);
                 applyFilters(search, price, sort, v, manFilter);
               }}
-              style={{ width: "100%", marginBottom: 16 }}
+              style={{
+                width: "100%",
+                marginBottom: 16,
+                fontSize: screens.xs ? 12 : 14
+              }}
+              dropdownStyle={{ fontSize: screens.xs ? 12 : 14 }}
             />
 
             <Select
@@ -230,7 +251,12 @@ const ProductPage: React.FC = () => {
                 setManFilter(v);
                 applyFilters(search, price, sort, catFilter, v);
               }}
-              style={{ width: "100%", marginBottom: 16 }}
+              style={{
+                width: "100%",
+                marginBottom: 16,
+                fontSize: screens.xs ? 12 : 14
+              }}
+              dropdownStyle={{ fontSize: screens.xs ? 12 : 14 }}
             />
 
             <Select
@@ -245,7 +271,11 @@ const ProductPage: React.FC = () => {
                 { value: "price_asc", label: "Цена по возрастанию" },
                 { value: "price_desc", label: "Цена по убыванию" },
               ]}
-              style={{ width: "100%" }}
+              style={{
+                width: "100%",
+                fontSize: screens.xs ? 12 : 14
+              }}
+              dropdownStyle={{ fontSize: screens.xs ? 12 : 14 }}
             />
           </Card>
         </Col>
@@ -267,7 +297,10 @@ const ProductPage: React.FC = () => {
                   sm={12}
                   md={8}
                   lg={6}
-                  style={{ marginBottom: 16 }}
+                  style={{
+                    marginBottom: 16,
+                    padding: screens.xs ? '0 4px' : '0 8px'
+                  }}
                 >
                   <Card
                     hoverable
@@ -301,39 +334,40 @@ const ProductPage: React.FC = () => {
                     }
                     actions={[
                       <div style={{ width: '100%', padding: '0 16px' }}>
-
-                      <Button
-                        type="primary"
-                        block
-                        icon={<ShoppingCartOutlined />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddToCart(p.id);
-                        }}
-                        size={screens.xs ? "middle" : "large"}
-                        style={{
-                          fontWeight: 500,
-                          height: screens.xs ? 36 : 40,
-                          fontSize: screens.xs ? 14 : 16,
-                        }}
-                      >
-                        Добавить в корзину
-                      </Button>,
-                      </div>,
+                        <Button
+                          type="primary"
+                          block
+                          icon={<ShoppingCartOutlined />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(p.id);
+                          }}
+                          size={screens.xs ? "small" : "middle"}
+                          style={{
+                            fontWeight: 500,
+                            height: screens.xs ? 32 : 40,
+                            fontSize: screens.xs ? 12 : 14,
+                          }}
+                        >
+                          {screens.xs ? <ShoppingCartOutlined /> : 'Добавить в корзину'}
+                        </Button>
+                      </div>
                     ]}
-
                   >
                     <Card.Meta
-                      title={p.name}
+                      title={<Text style={{ fontSize: screens.xs ? 14 : 16 }}>{p.name}</Text>}
                       description={
                         <>
                           <Paragraph
                             ellipsis={{ rows: 2 }}
-                            style={{ marginBottom: 8, fontSize: 12 }}
+                            style={{
+                              marginBottom: 8,
+                              fontSize: screens.xs ? 12 : 14
+                            }}
                           >
                             {p.description}
                           </Paragraph>
-                          <Text strong style={{ fontSize: 16 }}>
+                          <Text strong style={{ fontSize: screens.xs ? 14 : 16 }}>
                             ${p.price.toFixed(2)}
                           </Text>
                         </>
