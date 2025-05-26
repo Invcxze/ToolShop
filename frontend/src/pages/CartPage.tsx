@@ -104,7 +104,7 @@ const CartPage: React.FC = () => {
       new URL(product.photo)
       return product.photo
     } catch {
-      return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
+      return `${S3_BASE_URL}/${product.photo.replace(/^/+/, '')}`
     }
   }
 
@@ -116,13 +116,6 @@ const CartPage: React.FC = () => {
     height: '100%',
     objectFit: 'cover',
     padding: screens.xs ? 4 : 8,
-  }
-
-  const priceStyle: React.CSSProperties = {
-    fontSize: screens.xs ? 16 : 18,
-    color: '#1890ff',
-    margin: 0,
-    fontWeight: 600,
   }
 
   return (
@@ -172,10 +165,7 @@ const CartPage: React.FC = () => {
             >
               <Title
                 level={4}
-                style={{
-                  color: 'rgba(0,0,0,0.45)',
-                  marginBottom: 24,
-                }}
+                style={{ color: 'rgba(0,0,0,0.45)', marginBottom: 24 }}
               >
                 Ваша корзина пуста
               </Title>
@@ -196,17 +186,7 @@ const CartPage: React.FC = () => {
           </Col>
         ) : (
           cart.map((product) => (
-            <Col
-              key={product.id}
-              xs={24}
-              sm={12}
-              md={8}
-              lg={6}
-              xl={6}
-              style={{
-                display: 'flex',
-              }}
-            >
+            <Col key={product.id} xs={24} sm={12} md={8} lg={6} xl={6} style={{ display: 'flex' }}>
               <Card
                 hoverable
                 cover={
@@ -234,125 +214,80 @@ const CartPage: React.FC = () => {
                   </div>
                 }
                 actions={[
-                <Button
-                  type="primary"
-                  danger
-                  onClick={() => handleRemoveFromCart(product.id)}
-                  key="delete"
-                  size="middle"
-                  icon={<DeleteOutlined />}
-                  block
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    height: 40,
-                    fontSize: screens.xs ? 14 : 16,
-                    borderRadius: 8,
-                    boxShadow: '0 1px 6px rgba(0, 0, 0, 0.1)',
-                  }}
-                >
-                  {!screens.xs && 'Удалить'}
-                </Button>
+                  <Button
+                    danger
+                    onClick={() => handleRemoveFromCart(product.id)}
+                    key="delete"
+                    size="middle"
+                    icon={<DeleteOutlined />}
+                    block
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      height: 40,
+                      fontSize: screens.xs ? 14 : 16,
+                      borderRadius: 8,
+                    }}
+                  >
+                    {!screens.xs && 'Удалить'}
+                  </Button>,
                 ]}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                }}
-                bodyStyle={{
-                  padding: screens.xs ? 12 : 16,
-                }}
+                style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                bodyStyle={{ padding: screens.xs ? 12 : 16 }}
               >
                 <div>
                   <Title
                     level={5}
                     ellipsis={{ rows: 1 }}
-                    style={{
-                      marginBottom: 8,
-                      fontSize: screens.xs ? 16 : 18,
-                    }}
+                    style={{ marginBottom: 8, fontSize: screens.xs ? 16 : 18 }}
                   >
                     {product.name}
                   </Title>
 
                   <Space size={4} wrap style={{ marginBottom: 8 }}>
                     {product.category && (
-                      <Tag
-                        color="geekblue"
-                        style={{
-                          margin: 0,
-                          fontSize: screens.xs ? 12 : 14,
-                          borderRadius: 4,
-                        }}
-                      >
+                      <Tag color="geekblue" style={{ margin: 0, fontSize: screens.xs ? 12 : 14, borderRadius: 4 }}>
                         {product.category}
                       </Tag>
                     )}
                     {product.manufacturer && (
-                      <Tag
-                        color="volcano"
-                        style={{
-                          margin: 0,
-                          fontSize: screens.xs ? 12 : 14,
-                          borderRadius: 4,
-                        }}
-                      >
+                      <Tag color="volcano" style={{ margin: 0, fontSize: screens.xs ? 12 : 14, borderRadius: 4 }}>
                         {product.manufacturer}
                       </Tag>
                     )}
                   </Space>
 
-                  <Paragraph
-                    ellipsis={{
-                      rows: screens.xs ? 2 : 3,
-                      expandable: true,
-                      symbol: 'Подробнее',
-                    }}
-                    style={{
-                      fontSize: screens.xs ? 14 : 16,
-                      color: 'rgba(0,0,0,0.65)',
-                      marginBottom: 8,
-                    }}
-                  >
-                    {product.description}
+                  <Paragraph style={{ fontWeight: 600, fontSize: screens.xs ? 16 : 18 }}>
+                    {parseInt(product.price).toLocaleString()} ₽
                   </Paragraph>
                 </div>
-
-                <Paragraph style={priceStyle}>
-                  ${parseFloat(product.price).toFixed(2)}
-                </Paragraph>
               </Card>
             </Col>
           ))
         )}
       </Row>
 
-{cart.length > 0 && (
-  <div
-    style={{
-      marginTop: 32,
-      textAlign: 'center',
-    }}
-  >
-    <Button
-      type="primary"
-      size="large"
-      onClick={handleCheckout}
-      icon={<ShoppingCartOutlined />}
-      style={{
-        width: screens.xs ? '100%' : 280,
-        height: 48,
-        fontSize: 16,
-        borderRadius: 8,
-        boxShadow: '0 1px 6px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      Оформить заказ
-    </Button>
-  </div>
-)}
+      {cart.length > 0 && (
+        <div style={{ marginTop: 32, textAlign: 'center' }}>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleCheckout}
+            style={{
+              width: screens.xs ? '100%' : 320,
+              height: 48,
+              fontSize: 16,
+              borderRadius: 8,
+            }}
+          >
+            Перейти к оформлению
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default CartPage
