@@ -300,6 +300,8 @@ const ProductPage: React.FC = () => {
                       </div>
                     }
                     actions={[
+                      <div style={{ width: '100%', padding: '0 16px' }}>
+
                       <Button
                         type="primary"
                         block
@@ -317,6 +319,7 @@ const ProductPage: React.FC = () => {
                       >
                         Добавить в корзину
                       </Button>,
+                      </div>,
                     ]}
 
                   >
