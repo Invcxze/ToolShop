@@ -86,6 +86,10 @@ services:
       ./mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} &&
       ./mc mb local/local-bucket-shop || true &&
       ./mc policy set download local/local-bucket-shop || true
+      ./mc admin config set local api.cors.allow-origin="*"
+      ./mc admin config set local api.cors.allowed-headers="*"
+      ./mc admin config set local api.cors.allowed-methods="GET,PUT,POST,DELETE"
+      ./mc admin service restart local
       "
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
