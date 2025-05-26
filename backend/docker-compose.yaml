@@ -67,7 +67,7 @@ services:
   stripe-cli:
     image: stripe/stripe-cli
     container_name: stripe-cli
-    command: stripe listen --api-key whsec_4c7cb0bc16a35f6bc65f139d2b2af2aa21552a4e7890bce7d70b5994d25ae8b1 --forward-to http://web:8000/api/stripe/webhook
+    command: listen --api-key whsec_4c7cb0bc16a35f6bc65f139d2b2af2aa21552a4e7890bce7d70b5994d25ae8b1 --forward-to http://web:8000/api/stripe/webhook
     depends_on:
       - web
     networks:
