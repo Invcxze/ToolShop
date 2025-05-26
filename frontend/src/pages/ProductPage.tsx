@@ -1,4 +1,3 @@
-// ProductPage.tsx
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -182,7 +181,7 @@ const ProductPage: React.FC = () => {
                   addonBefore="До"
                   type="number"
                   value={price[1]}
-                  onChange={(e) => setPrice([price[0], Number(e.target.value) || 1_000])}
+                  onChange={(e) => setPrice([price[0], Number(e.target.value) || 1_000_000])}
                   onBlur={() => applyFilters()}
                 />
               </Col>
@@ -241,32 +240,6 @@ const ProductPage: React.FC = () => {
                 <Col key={p.id} xs={24} sm={12} md={8} lg={6}>
                   <Card
                     hoverable
-                    cover={
-                      <div
-                        style={{
-                          position: "relative",
-                          paddingTop: "100%",
-                          backgroundColor: "#fff",
-                          border: "1px solid #f0f0f0",
-                          borderRadius: 8,
-                          overflow: "hidden",
-                          boxShadow: "0 1px 6px rgba(0, 0, 0, 0.1)",
-                        }}
-                      >
-                        <img
-                          src={getProductImage(p)}
-                          alt={p.name}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </div>
-                    }
                     onClick={() => navigate(`/products/${p.id}`)}
                     actions={[
                       <Button
@@ -280,10 +253,37 @@ const ProductPage: React.FC = () => {
                         В корзину
                       </Button>,
                     ]}
-                    style={{ borderRadius: 8 }}
+                    style={{
+                      borderRadius: 8,
+                      height: 360,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                    cover={
+                      <div
+                        style={{
+                          height: 180,
+                          backgroundColor: "#fff",
+                          borderBottom: "1px solid #f0f0f0",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <img
+                          src={getProductImage(p)}
+                          alt={p.name}
+                          style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                    }
                   >
-                    <Title level={5}>{p.name}</Title>
-                    <Text strong>{p.price.toLocaleString()} ₽</Text>
+                    <div>
+                      <Title level={5} ellipsis={{ rows: 2 }}>{p.name}</Title>
+                      <Text strong>{p.price.toLocaleString()} ₽</Text>
+                    </div>
                   </Card>
                 </Col>
               ))
