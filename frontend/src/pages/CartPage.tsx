@@ -177,7 +177,7 @@ const CartPage: React.FC = () => {
                       danger
                       onClick={() => handleRemoveFromCart(product.id)}
                       key="delete"
-                      size={screens.xs ? "small" : "middle"}
+                      size={screens.xs ? 'middle' : 'large'}
                       icon={<DeleteOutlined />}
                       block={screens.xs}
                       style={{
@@ -186,7 +186,7 @@ const CartPage: React.FC = () => {
                         alignItems: 'center',
                         justifyContent: screens.xs ? 'flex-start' : 'center',
                         gap: 8,
-                        padding: screens.xs ? '4px 8px' : '6px 15px',
+                        padding: screens.xs ? '4px' : '8px',
                       }}
                     >
                       Удалить товар из корзины

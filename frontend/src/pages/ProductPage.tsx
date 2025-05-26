@@ -306,7 +306,7 @@ const ProductPage: React.FC = () => {
                             e.stopPropagation();
                             handleAddToCart(p.id);
                           }}
-                          size={screens.xs ? "small" : "middle"}
+                          size={screens.xs ? 'middle' : 'large'}
                           icon={<ShoppingCartOutlined />}
                           style={{
                             width: screens.xs ? 'auto' : '100%',
@@ -314,7 +314,7 @@ const ProductPage: React.FC = () => {
                             alignItems: 'center',
                             justifyContent: screens.xs ? 'flex-start' : 'center',
                             gap: 8,
-                            padding: screens.xs ? '4px 8px' : '6px 15px',
+                            padding: screens.xs ? '4px' : '8px',
                           }}
                         >
                         Добавить в корзину
