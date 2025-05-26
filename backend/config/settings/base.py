@@ -116,7 +116,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -150,3 +149,4 @@ PAYMENT_HOST = os.getenv("PAYMENT_HOST")
 PAYMENT_PROTOCOL = os.getenv("PAYMENT_PROTOCOL")
 
 SITE_ID = 1
+STATIC_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/'
