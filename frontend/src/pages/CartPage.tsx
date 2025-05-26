@@ -7,6 +7,7 @@ import {
   Typography,
   message,
   Grid,
+  Space,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import default_product_photo from "../assets/guitar.jpeg";
@@ -74,6 +75,31 @@ const CartPage: React.FC = () => {
     }
   };
 
+  const handleCheckout = async () => {
+    if (!token) {
+      message.error("Пожалуйста, войдите в систему");
+      navigate("/login");
+      return;
+    }
+
+    if (cart.length === 0) {
+      message.warning("Корзина пуста!");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/shop/order`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error();
+      const { data } = await res.json();
+      window.location.href = data.checkout_url;
+    } catch {
+      message.error("Ошибка при оформлении заказа");
+    }
+  };
+
   useEffect(() => {
     fetchCart();
   }, []);
@@ -106,58 +132,78 @@ const CartPage: React.FC = () => {
           Ваша корзина пуста
         </Paragraph>
       ) : (
-        <Row gutter={[16, 16]}>
-          {cart.map((p) => (
-            <Col key={p.id} xs={24} sm={12} md={8} lg={6}>
-              <Card
-                hoverable
-                cover={
-                  <div
-                    style={{
-                      position: "relative",
-                      paddingTop: "100%",
-                      backgroundColor: "#fff",
-                      border: "1px solid #f0f0f0",
-                      borderRadius: 8,
-                      overflow: "hidden",
-                      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.1)",
-                    }}
-                  >
-                    <img
-                      src={getProductImage(p)}
-                      alt={p.name}
+        <>
+          <Row gutter={[16, 16]}>
+            {cart.map((p) => (
+              <Col key={p.id} xs={24} sm={12} md={8} lg={6}>
+                <Card
+                  hoverable
+                  cover={
+                    <div
                       style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
+                        position: "relative",
+                        paddingTop: "100%",
+                        backgroundColor: "#fff",
+                        border: "1px solid #f0f0f0",
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        boxShadow: "0 1px 6px rgba(0, 0, 0, 0.1)",
                       }}
-                    />
-                  </div>
-                }
-                actions={[
-                  <Button
-                    type="primary"
-                    icon={<DeleteOutlined />}
-                    danger
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemove(p.id);
-                    }}
-                  >
-                    Удалить
-                  </Button>,
-                ]}
-                style={{ borderRadius: 8 }}
-              >
-                <Title level={5}>{p.name}</Title>
-                <Text strong>{Number(p.price).toLocaleString()} ₽</Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                    >
+                      <img
+                        src={getProductImage(p)}
+                        alt={p.name}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                  }
+                  actions={[
+                    <Button
+                      type="primary"
+                      icon={<DeleteOutlined />}
+                      danger
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemove(p.id);
+                      }}
+                    >
+                      Удалить
+                    </Button>,
+                  ]}
+                  style={{ borderRadius: 8 }}
+                >
+                  <Title level={5}>{p.name}</Title>
+                  <Text strong>{Number(p.price).toLocaleString()} ₽</Text>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          <div
+            style={{
+              marginTop: 32,
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <Button
+              type="primary"
+              size="large"
+              onClick={handleCheckout}
+              style={{ width: screens.xs ? "100%" : 300, height: 48, fontSize: 16 }}
+            >
+              Оформить заказ
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );
