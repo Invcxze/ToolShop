@@ -1,3 +1,4 @@
+// ProductPage.tsx
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -12,10 +13,12 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import default_product_photo from "../assets/guitar.jpeg";
+import { ShoppingCartOutlined } from "@ant-design/icons";
+
 const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-import { ShoppingCartOutlined } from '@ant-design/icons';
+const S3_BASE_URL = "http://localhost:9000/local-bucket-shop/media";
 
 interface Product {
   id: number;
@@ -27,7 +30,6 @@ interface Product {
   manufacturer?: string | null;
 }
 
-const S3_BASE_URL = "http://localhost:9000/local-bucket-shop/media";
 const getProductImage = (p: Product) => {
   if (!p.photo) return default_product_photo;
   try {
@@ -72,14 +74,8 @@ const ProductPage: React.FC = () => {
         setProducts(normalized);
         setFiltered(normalized);
 
-        const categories = [
-          ...new Set(normalized.map((p) => p.category).filter((c) => c != null)),
-        ] as string[];
-        const manufacturers = [
-          ...new Set(
-            normalized.map((p) => p.manufacturer).filter((m) => m != null)
-          ),
-        ] as string[];
+        const categories = [...new Set(normalized.map((p) => p.category).filter(Boolean))] as string[];
+        const manufacturers = [...new Set(normalized.map((p) => p.manufacturer).filter(Boolean))] as string[];
 
         setCategoryOptions(categories);
         setManufacturerOptions(manufacturers);
@@ -123,7 +119,7 @@ const ProductPage: React.FC = () => {
   const handleAddToCart = async (id: number) => {
     if (!token) {
       message.error("Авторизуйтесь!");
-      navigate('/login');
+      navigate("/login");
       return;
     }
     try {
@@ -148,29 +144,15 @@ const ProductPage: React.FC = () => {
     >
       <Title
         level={screens.xs ? 3 : 1}
-        style={{
-          marginBottom: screens.xs ? 16 : 24,
-          paddingTop: screens.xs ? 16 : 24
-        }}
+        style={{ marginBottom: screens.xs ? 16 : 24, paddingTop: screens.xs ? 16 : 24 }}
       >
         Каталог товаров
       </Title>
 
-      <Row gutter={[16, 16]} style={{ margin: screens.xs ? 0 : 'initial' }}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} md={6}>
-          <Card
-            bordered={false}
-            style={{
-              background: "#fff",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              borderRadius: 8,
-              marginBottom: screens.xs ? 16 : 0
-            }}
-          >
-            <Title level={5} style={{
-              marginBottom: 16,
-              fontSize: screens.xs ? '16px' : '14px'
-            }}>
+          <Card bordered={false} style={{ borderRadius: 8 }}>
+            <Title level={5} style={{ marginBottom: 16 }}>
               Фильтры
             </Title>
 
@@ -182,81 +164,52 @@ const ProductPage: React.FC = () => {
                 setSearch(q);
                 applyFilters(q);
               }}
-              style={{
-                marginBottom: 16,
-                fontSize: screens.xs ? 14 : 16
-              }}
+              style={{ marginBottom: 16 }}
             />
 
-            <div style={{ marginBottom: 16 }}>
-              <Row gutter={[8, 8]}>
-                <Col xs={24} sm={12} style={{ marginBottom: 8 }}>
-                  <Input
-                    addonBefore={<Text style={{ fontSize: screens.xs ? 12 : 14 }}>От</Text>}
-                    type="number"
-                    placeholder="0"
-                    value={price[0]}
-                    onChange={(e) =>
-                      setPrice([Number(e.target.value) || 0, price[1]])
-                    }
-                    onBlur={() => applyFilters()}
-                    style={{
-                      width: "100%",
-                      fontSize: screens.xs ? 12 : 14
-                    }}
-                  />
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Input
-                    addonBefore={<Text style={{ fontSize: screens.xs ? 12 : 14 }}>До</Text>}
-                    type="number"
-                    placeholder="1000000"
-                    value={price[1]}
-                    onChange={(e) =>
-                      setPrice([price[0], Number(e.target.value) || 1_000_000])
-                    }
-                    onBlur={() => applyFilters()}
-                    style={{
-                      width: "100%",
-                      fontSize: screens.xs ? 12 : 14
-                    }}
-                  />
-                </Col>
-              </Row>
-            </div>
+            <Row gutter={8} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Input
+                  addonBefore="От"
+                  type="number"
+                  value={price[0]}
+                  onChange={(e) => setPrice([Number(e.target.value) || 0, price[1]])}
+                  onBlur={() => applyFilters()}
+                />
+              </Col>
+              <Col span={12}>
+                <Input
+                  addonBefore="До"
+                  type="number"
+                  value={price[1]}
+                  onChange={(e) => setPrice([price[0], Number(e.target.value) || 1_000_000])}
+                  onBlur={() => applyFilters()}
+                />
+              </Col>
+            </Row>
 
             <Select
               allowClear
               placeholder="Категория"
               value={catFilter}
-              options={categoryOptions.map((c) => ({ value: c, label: c }))}
               onChange={(v) => {
                 setCatFilter(v);
                 applyFilters(search, price, sort, v, manFilter);
               }}
-              style={{
-                width: "100%",
-                marginBottom: 16,
-                fontSize: screens.xs ? 12 : 14
-              }}
-              dropdownStyle={{ fontSize: screens.xs ? 12 : 14 }}
+              options={categoryOptions.map((c) => ({ value: c, label: c }))}
+              style={{ width: "100%", marginBottom: 16 }}
             />
 
             <Select
               allowClear
               placeholder="Производитель"
               value={manFilter}
-              options={manufacturerOptions.map((m) => ({ value: m, label: m }))}
               onChange={(v) => {
                 setManFilter(v);
                 applyFilters(search, price, sort, catFilter, v);
               }}
-              style={{
-                width: "100%",
-                marginBottom: 16,
-                fontSize: screens.xs ? 12 : 14
-              }}
-              dropdownStyle={{ fontSize: screens.xs ? 12 : 14 }}
+              options={manufacturerOptions.map((m) => ({ value: m, label: m }))}
+              style={{ width: "100%", marginBottom: 16 }}
             />
 
             <Select
@@ -271,11 +224,7 @@ const ProductPage: React.FC = () => {
                 { value: "price_asc", label: "Цена по возрастанию" },
                 { value: "price_desc", label: "Цена по убыванию" },
               ]}
-              style={{
-                width: "100%",
-                fontSize: screens.xs ? 12 : 14
-              }}
-              dropdownStyle={{ fontSize: screens.xs ? 12 : 14 }}
+              style={{ width: "100%" }}
             />
           </Card>
         </Col>
@@ -285,34 +234,15 @@ const ProductPage: React.FC = () => {
             {filtered.length === 0 ? (
               <Col span={24} style={{ textAlign: "center", padding: 40 }}>
                 <Title level={4}>Товары не найдены</Title>
-                <Paragraph type="secondary">
-                  Попробуйте изменить параметры фильтров
-                </Paragraph>
+                <Paragraph type="secondary">Попробуйте изменить параметры фильтров</Paragraph>
               </Col>
             ) : (
               filtered.map((p) => (
-                <Col
-                  key={p.id}
-                  xs={24}
-                  sm={12}
-                  md={8}
-                  lg={6}
-                  style={{
-                    marginBottom: 16,
-                    padding: screens.xs ? '0 4px' : '0 8px'
-                  }}
-                >
+                <Col key={p.id} xs={24} sm={12} md={8} lg={6}>
                   <Card
                     hoverable
-                    onClick={() => navigate(`/products/${p.id}`)}
                     cover={
-                      <div
-                        style={{
-                          position: "relative",
-                          paddingTop: "100%",
-                          backgroundColor: "#fafafa",
-                        }}
-                      >
+                      <div style={{ position: "relative", paddingTop: "100%", backgroundColor: "#fafafa" }}>
                         <img
                           src={getProductImage(p)}
                           alt={p.name}
@@ -323,56 +253,26 @@ const ProductPage: React.FC = () => {
                             width: "100%",
                             height: "100%",
                             objectFit: "contain",
-                            padding: 8,
-                          }}
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src =
-                              default_product_photo;
                           }}
                         />
                       </div>
                     }
+                    onClick={() => navigate(`/products/${p.id}`)}
                     actions={[
-                      <div style={{ width: '100%', padding: '0 16px' }}>
-                        <Button
-                          type="primary"
-                          block
-                          icon={<ShoppingCartOutlined />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToCart(p.id);
-                          }}
-                          size={screens.xs ? "small" : "middle"}
-                          style={{
-                            fontWeight: 500,
-                            height: screens.xs ? 32 : 40,
-                            fontSize: screens.xs ? 12 : 14,
-                          }}
-                        >
-                          {screens.xs ? <ShoppingCartOutlined /> : 'Добавить в корзину'}
-                        </Button>
-                      </div>
+                      <Button
+                        type="primary"
+                        icon={<ShoppingCartOutlined />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(p.id);
+                        }}
+                      >
+                        В корзину
+                      </Button>,
                     ]}
                   >
-                    <Card.Meta
-                      title={<Text style={{ fontSize: screens.xs ? 14 : 16 }}>{p.name}</Text>}
-                      description={
-                        <>
-                          <Paragraph
-                            ellipsis={{ rows: 2 }}
-                            style={{
-                              marginBottom: 8,
-                              fontSize: screens.xs ? 12 : 14
-                            }}
-                          >
-                            {p.description}
-                          </Paragraph>
-                          <Text strong style={{ fontSize: screens.xs ? 14 : 16 }}>
-                            ${p.price.toFixed(2)}
-                          </Text>
-                        </>
-                      }
-                    />
+                    <Title level={5}>{p.name}</Title>
+                    <Text strong>{p.price.toLocaleString()} ₽</Text>
                   </Card>
                 </Col>
               ))

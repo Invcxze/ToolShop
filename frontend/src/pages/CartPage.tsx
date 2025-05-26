@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Row, Col, Typography, message, Tag, Grid, Space } from 'antd'
+import {
+  Button,
+  Card,
+  Row,
+  Col,
+  Typography,
+  message,
+  Tag,
+  Grid,
+  Space,
+} from 'antd'
 import { useNavigate } from 'react-router-dom'
 import default_product_photo from '../assets/guitar.jpeg'
-const BASE_URL = import.meta.env.VITE_API_BASE_URL
 import { DeleteOutlined, ArrowLeftOutlined } from '@ant-design/icons'
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
 const { Title, Paragraph } = Typography
 const { useBreakpoint } = Grid
 
@@ -56,7 +67,7 @@ const CartPage: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!res.ok) throw new Error()
-      setCart(prev => prev.filter(p => p.id !== id))
+      setCart((prev) => prev.filter((p) => p.id !== id))
       message.success('Товар удалён из корзины')
     } catch {
       message.error('Ошибка при удалении товара')
@@ -97,7 +108,6 @@ const CartPage: React.FC = () => {
     }
   }
 
-  // Стили для повторного использования
   const cardImageStyle: React.CSSProperties = {
     position: 'absolute',
     top: 0,
@@ -105,36 +115,44 @@ const CartPage: React.FC = () => {
     width: '100%',
     height: '100%',
     objectFit: 'cover',
-    padding: screens.xs ? 4 : 8
+    padding: screens.xs ? 4 : 8,
   }
 
   const priceStyle: React.CSSProperties = {
     fontSize: screens.xs ? 16 : 18,
     color: '#1890ff',
     margin: 0,
-    fontWeight: 600
+    fontWeight: 600,
   }
 
   return (
-    <div style={{
-      maxWidth: 1200,
-      margin: 'auto',
-      padding: screens.xs ? '16px 8px' : 24,
-      minHeight: 'calc(100vh - 64px)'
-    }}>
+    <div
+      style={{
+        maxWidth: 1200,
+        margin: 'auto',
+        padding: screens.xs ? '16px 8px' : 24,
+        minHeight: 'calc(100vh - 64px)',
+      }}
+    >
       <Space style={{ width: '100%', marginBottom: 24 }}>
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
-          type="text"
+          type="default"
           size={screens.xs ? 'middle' : 'large'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 8,
+          }}
         />
         <Title
           level={screens.xs ? 3 : 1}
           style={{
             margin: 0,
             flex: 1,
-            textAlign: screens.xs ? 'center' : 'left'
+            textAlign: screens.xs ? 'center' : 'left',
           }}
         >
           🛒 Корзина
@@ -144,16 +162,21 @@ const CartPage: React.FC = () => {
       <Row gutter={[screens.xs ? 8 : 16, screens.xs ? 16 : 24]}>
         {cart.length === 0 ? (
           <Col span={24} style={{ textAlign: 'center' }}>
-            <div style={{
-              padding: '40px 16px',
-              borderRadius: 8,
-              backgroundColor: '#fafafa',
-              marginBottom: 24
-            }}>
-              <Title level={4} style={{
-                color: 'rgba(0,0,0,0.45)',
-                marginBottom: 24
-              }}>
+            <div
+              style={{
+                padding: '40px 16px',
+                borderRadius: 8,
+                backgroundColor: '#fafafa',
+                marginBottom: 24,
+              }}
+            >
+              <Title
+                level={4}
+                style={{
+                  color: 'rgba(0,0,0,0.45)',
+                  marginBottom: 24,
+                }}
+              >
                 Ваша корзина пуста
               </Title>
               <Button
@@ -161,9 +184,10 @@ const CartPage: React.FC = () => {
                 onClick={() => navigate('/products')}
                 size="large"
                 style={{
-                  width: screens.xs ? '100%' : 'auto',
+                  width: screens.xs ? '100%' : 240,
                   height: 48,
-                  fontSize: 16
+                  fontSize: 16,
+                  borderRadius: 8,
                 }}
               >
                 Перейти к товарам
@@ -171,7 +195,7 @@ const CartPage: React.FC = () => {
             </div>
           </Col>
         ) : (
-          cart.map(product => (
+          cart.map((product) => (
             <Col
               key={product.id}
               xs={24}
@@ -181,25 +205,27 @@ const CartPage: React.FC = () => {
               xl={6}
               style={{
                 marginBottom: screens.xs ? 8 : 16,
-                padding: screens.xs ? '0 4px' : '0 8px'
+                padding: screens.xs ? '0 4px' : '0 8px',
               }}
             >
               <Card
                 hoverable
                 cover={
-                  <div style={{
-                    position: 'relative',
-                    paddingTop: '75%',
-                    backgroundColor: '#fafafa',
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                    overflow: 'hidden'
-                  }}>
+                  <div
+                    style={{
+                      position: 'relative',
+                      paddingTop: '75%',
+                      backgroundColor: '#fafafa',
+                      borderTopLeftRadius: 8,
+                      borderTopRightRadius: 8,
+                      overflow: 'hidden',
+                    }}
+                  >
                     <img
                       alt={product.name}
                       src={getProductImage(product)}
                       style={cardImageStyle}
-                      onError={e => {
+                      onError={(e) => {
                         const target = e.currentTarget as HTMLImageElement
                         target.src = default_product_photo
                         target.style.objectFit = 'contain'
@@ -222,20 +248,21 @@ const CartPage: React.FC = () => {
                       justifyContent: 'center',
                       gap: 8,
                       height: 40,
-                      fontSize: screens.xs ? 14 : 16
+                      fontSize: screens.xs ? 14 : 16,
+                      borderRadius: 8,
                     }}
                   >
                     {!screens.xs && 'Удалить'}
-                  </Button>
+                  </Button>,
                 ]}
                 styles={{
                   body: {
                     padding: screens.xs ? 12 : 16,
-                    height: screens.xs ? 'auto' : 200,
+                    height: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between'
-                  }
+                    justifyContent: 'space-between',
+                  },
                 }}
               >
                 <div>
@@ -244,7 +271,7 @@ const CartPage: React.FC = () => {
                     ellipsis={{ rows: 1 }}
                     style={{
                       marginBottom: 8,
-                      fontSize: screens.xs ? 16 : 18
+                      fontSize: screens.xs ? 16 : 18,
                     }}
                   >
                     {product.name}
@@ -257,7 +284,7 @@ const CartPage: React.FC = () => {
                         style={{
                           margin: 0,
                           fontSize: screens.xs ? 12 : 14,
-                          borderRadius: 4
+                          borderRadius: 4,
                         }}
                       >
                         {product.category}
@@ -269,7 +296,7 @@ const CartPage: React.FC = () => {
                         style={{
                           margin: 0,
                           fontSize: screens.xs ? 12 : 14,
-                          borderRadius: 4
+                          borderRadius: 4,
                         }}
                       >
                         {product.manufacturer}
@@ -281,21 +308,19 @@ const CartPage: React.FC = () => {
                     ellipsis={{
                       rows: screens.xs ? 2 : 3,
                       expandable: true,
-                      symbol: 'Подробнее'
+                      symbol: 'Подробнее',
                     }}
                     style={{
                       fontSize: screens.xs ? 14 : 16,
                       color: 'rgba(0,0,0,0.65)',
-                      marginBottom: 8
+                      marginBottom: 8,
                     }}
                   >
                     {product.description}
                   </Paragraph>
                 </div>
 
-                <Paragraph
-                  style={priceStyle}
-                >
+                <Paragraph style={priceStyle}>
                   ${parseFloat(product.price).toFixed(2)}
                 </Paragraph>
               </Card>
@@ -305,29 +330,35 @@ const CartPage: React.FC = () => {
       </Row>
 
       {cart.length > 0 && (
-        <div style={{
-          position: 'sticky',
-          bottom: 0,
-          backgroundColor: '#fff',
-          padding: '16px 0',
-          boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
-          marginTop: 24
-        }}>
-          <div style={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            textAlign: 'center'
-          }}>
+        <div
+          style={{
+            position: 'sticky',
+            bottom: 0,
+            backgroundColor: '#fff',
+            padding: '16px 0',
+            boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
+            marginTop: 24,
+            zIndex: 100,
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1200,
+              margin: '0 auto',
+              textAlign: 'center',
+            }}
+          >
             <Button
               type="primary"
               onClick={handleCheckout}
               size="large"
               style={{
-                width: screens.xs ? '100%' : 'auto',
+                width: screens.xs ? '100%' : 280,
                 padding: '0 40px',
                 height: 48,
                 fontSize: 16,
-                fontWeight: 600
+                fontWeight: 600,
+                borderRadius: 8,
               }}
             >
               🚀 Оформить заказ ({cart.length})
