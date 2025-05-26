@@ -12,10 +12,10 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import default_product_photo from "../assets/guitar.jpeg";
-
 const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { ShoppingCartOutlined } from '@ant-design/icons';
 
 interface Product {
   id: number;
