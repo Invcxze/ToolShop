@@ -181,14 +181,15 @@ const CartPage: React.FC = () => {
                       icon={<DeleteOutlined />}
                       block={screens.xs}
                       style={{
-                        display: 'flex',
+                        width: screens.xs ? 'auto' : '100%',
+                        display: 'inline-flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: screens.xs ? 0 : 8,
-                        minWidth: screens.xs ? 40 : undefined,
+                        justifyContent: screens.xs ? 'flex-start' : 'center',
+                        gap: 8,
+                        padding: screens.xs ? '4px 8px' : '6px 15px',
                       }}
                     >
-                      {!screens.xs && 'Удалить'}
+                      Удалить товар из корзины
                     </Button>
                 ]}
                 bodyStyle={{
