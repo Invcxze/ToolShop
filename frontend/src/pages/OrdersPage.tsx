@@ -18,7 +18,9 @@ import default_product_photo from '../assets/guitar.jpeg'
 const { Title, Paragraph } = Typography
 const { Panel } = Collapse
 const { useBreakpoint } = Grid
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL
+const S3_BASE_URL = "http://172.19.0.2:9001/local-bucket-shop/media"
 
 interface Product {
   id: number
@@ -51,7 +53,7 @@ const OrdersPage: React.FC = () => {
     try {
       setLoading(true)
       const res = await fetch(`${BASE_URL}/shop/order`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       })
       if (!res.ok) throw new Error()
       const json = await res.json()
@@ -66,8 +68,6 @@ const OrdersPage: React.FC = () => {
   useEffect(() => {
     fetchOrders()
   }, [])
-
-  const S3_BASE_URL = "http://172.19.0.2:9001/local-bucket-shop/media"
 
   const getProductImage = (product: Product) => {
     if (!product.photo) return default_product_photo
@@ -88,10 +88,7 @@ const OrdersPage: React.FC = () => {
     }}>
       <Title
         level={screens.xs ? 3 : 1}
-        style={{
-          marginBottom: screens.xs ? 16 : 24,
-          textAlign: 'center'
-        }}
+        style={{ marginBottom: screens.xs ? 16 : 24, textAlign: 'center' }}
       >
         История заказов
       </Title>
@@ -110,11 +107,7 @@ const OrdersPage: React.FC = () => {
           </Button>
         </div>
       ) : (
-        <Collapse
-          accordion
-          bordered={false}
-          style={{ background: 'transparent' }}
-        >
+        <Collapse accordion bordered={false} style={{ background: 'transparent' }}>
           {orders.map(order => (
             <Panel
               key={order.id}
@@ -131,13 +124,8 @@ const OrdersPage: React.FC = () => {
               extra={
                 <Tag
                   color={order.status === 'paid' ? 'green' : 'red'}
-                  icon={order.status === 'paid' ?
-                    <CheckCircleOutlined /> :
-                    <CloseCircleOutlined />}
-                  style={{
-                    margin: screens.xs ? '8px 0' : 0,
-                    borderRadius: 4
-                  }}
+                  icon={order.status === 'paid' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                  style={{ margin: screens.xs ? '8px 0' : 0, borderRadius: 4 }}
                 >
                   {order.status === 'paid' ? 'Оплачен' : 'Не оплачен'}
                 </Tag>
@@ -149,96 +137,55 @@ const OrdersPage: React.FC = () => {
                 border: '1px solid #f0f0f0'
               }}
             >
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 16,
-                justifyContent: screens.xs ? 'center' : 'flex-start'
-              }}>
-                {order.products.map(p => (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: screens.xs ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gap: 16
+                }}
+              >
+                {order.products.map(product => (
                   <Card
-                    key={p.id}
-                    style={{
-                      width: screens.xs ? '100%' : 'calc(50% - 8px)',
-                      minWidth: 280,
-                      flexGrow: 1
-                    }}
-                    bodyStyle={{ padding: screens.xs ? 12 : 16 }}
+                    key={product.id}
+                    style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                    bodyStyle={{ padding: 16, display: 'flex', flexDirection: 'column', flexGrow: 1 }}
                   >
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: screens.xs ? 'column' : 'row',
-                      gap: screens.xs ? 12 : 24,
-                      alignItems: screens.xs ? 'flex-start' : 'center'
-                    }}>
-                      <img
-                        src={getProductImage(p)}
-                        alt={p.name}
-                        style={{
-                          width: screens.xs ? '100%' : 120,
-                          height: screens.xs ? 160 : 120,
-                          objectFit: 'cover',
-                          borderRadius: 8
-                        }}
-                        onError={e => {
-                          const target = e.currentTarget as HTMLImageElement
-                          target.src = default_product_photo
-                          target.style.objectFit = 'contain'
-                        }}
-                      />
+                    <img
+                      src={getProductImage(product)}
+                      alt={product.name}
+                      style={{
+                        width: '100%',
+                        height: 160,
+                        objectFit: 'cover',
+                        borderRadius: 8,
+                        marginBottom: 16
+                      }}
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement
+                        target.src = default_product_photo
+                        target.style.objectFit = 'contain'
+                      }}
+                    />
 
-                      <div style={{ flex: 1 }}>
-                        <Title
-                          level={screens.xs ? 5 : 4}
-                          style={{ marginBottom: 8 }}
-                        >
-                          {p.name}
-                        </Title>
+                    <Title level={5} style={{ marginBottom: 8 }}>
+                      {product.name}
+                    </Title>
 
-                        <div style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          gap: 4,
-                          marginBottom: 8
-                        }}>
-                          {p.category && (
-                            <Tag color="blue" style={{ fontSize: screens.xs ? 12 : 14 }}>
-                              {p.category}
-                            </Tag>
-                          )}
-                          {p.manufacturer && (
-                            <Tag color="volcano" style={{ fontSize: screens.xs ? 12 : 14 }}>
-                              {p.manufacturer}
-                            </Tag>
-                          )}
-                        </div>
-
-                        <Paragraph
-                          ellipsis={{
-                            rows: screens.xs ? 2 : 3,
-                            expandable: true
-                          }}
-                          style={{
-                            fontSize: screens.xs ? 14 : 16,
-                            color: '#666',
-                            marginBottom: 8
-                          }}
-                        >
-                          {p.description}
-                        </Paragraph>
-
-                        <Paragraph
-                          strong
-                          style={{
-                            fontSize: screens.xs ? 16 : 18,
-                            color: '#1890ff',
-                            margin: 0
-                          }}
-                        >
-                          Цена: ${parseFloat(p.price).toFixed(2)}
-                        </Paragraph>
-                      </div>
+                    <div style={{ marginBottom: 8 }}>
+                      {product.category && <Tag color="blue">{product.category}</Tag>}
+                      {product.manufacturer && <Tag color="volcano">{product.manufacturer}</Tag>}
                     </div>
+
+                    <Paragraph
+                      style={{ color: '#666', marginBottom: 8 }}
+                      ellipsis={{ rows: 2 }}
+                    >
+                      {product.description}
+                    </Paragraph>
+
+                    <Paragraph strong style={{ fontSize: 16, marginTop: 'auto' }}>
+                      Цена: ${parseFloat(product.price).toFixed(2)}
+                    </Paragraph>
                   </Card>
                 ))}
               </div>
