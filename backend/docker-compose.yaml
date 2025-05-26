@@ -75,6 +75,7 @@ services:
 
   minio-init:
     image: minio/mc:latest
+    platform: linux/amd64
     depends_on:
       - minio
     entrypoint: >
