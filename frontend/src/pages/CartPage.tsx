@@ -98,15 +98,15 @@ const CartPage: React.FC = () => {
   }
 
   const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
-  const getProductImage = (product: Product) => {
-    if (!product.photo) return default_product_photo
-    try {
-      new URL(product.photo)
-      return product.photo
-    } catch {
-      return `${S3_BASE_URL}/${product.photo.replace(/^/+/, '')}`
+    const getProductImage = (product: Product) => {
+      if (!product.photo) return default_product_photo
+      try {
+        new URL(product.photo)
+        return product.photo
+      } catch {
+        return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
+      }
     }
-  }
 
   const cardImageStyle: React.CSSProperties = {
     position: 'absolute',
