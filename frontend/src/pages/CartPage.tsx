@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -6,288 +6,161 @@ import {
   Col,
   Typography,
   message,
-  Tag,
   Grid,
-  Space,
-} from 'antd'
-import { useNavigate } from 'react-router-dom'
-import default_product_photo from '../assets/guitar.jpeg'
-import { DeleteOutlined, ArrowLeftOutlined } from '@ant-design/icons'
+} from "antd";
+import { useNavigate } from "react-router-dom";
+import default_product_photo from "../assets/guitar.jpeg";
+import { DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL
-const { Title, Paragraph } = Typography
-const { useBreakpoint } = Grid
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const { Title, Paragraph, Text } = Typography;
+const { useBreakpoint } = Grid;
+const S3_BASE_URL = "http://localhost:9000/local-bucket-shop/media";
 
 interface Product {
-  id: number
-  name: string
-  description: string
-  price: string
-  photo: string | null
-  category?: string | null
-  manufacturer?: string | null
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  photo: string | null;
+  category?: string | null;
+  manufacturer?: string | null;
 }
 
+const getProductImage = (p: Product) => {
+  if (!p.photo) return default_product_photo;
+  try {
+    new URL(p.photo);
+    return p.photo;
+  } catch {
+    return `${S3_BASE_URL}/${p.photo.replace(/^\/+/, "")}`;
+  }
+};
+
 const CartPage: React.FC = () => {
-  const [cart, setCart] = useState<Product[]>([])
-  const navigate = useNavigate()
-  const screens = useBreakpoint()
-  const token = localStorage.getItem('token')
+  const [cart, setCart] = useState<Product[]>([]);
+  const screens = useBreakpoint();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (!token) {
-        message.error('Пожалуйста, войдите в систему')
-        navigate('/login')
-        return
-      }
-      try {
-        const res = await fetch(`${BASE_URL}/shop/cart`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        if (!res.ok) throw new Error()
-        const json = await res.json()
-        setCart(json.data)
-      } catch {
-        message.error('Ошибка при загрузке корзины')
-      }
-    }
-    fetchCart()
-  }, [])
+  const fetchCart = async () => {
+    if (!token) return;
 
-  const handleRemoveFromCart = async (id: number) => {
-    if (!token) {
-      message.error('Пожалуйста, войдите в систему')
-      navigate('/login')
-      return
+    try {
+      const res = await fetch(`${BASE_URL}/shop/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setCart(data.data);
+    } catch {
+      message.error("Не удалось загрузить корзину");
     }
+  };
+
+  const handleRemove = async (id: number) => {
+    if (!token) return;
+
     try {
       const res = await fetch(`${BASE_URL}/shop/cart/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
-      if (!res.ok) throw new Error()
-      setCart((prev) => prev.filter((p) => p.id !== id))
-      message.success('Товар удалён из корзины')
+      });
+      if (!res.ok) throw new Error();
+      message.success("Товар удалён");
+      fetchCart();
     } catch {
-      message.error('Ошибка при удалении товара')
+      message.error("Не удалось удалить товар");
     }
-  }
+  };
 
-  const handleCheckout = async () => {
-    if (!token) {
-      message.error('Пожалуйста, войдите в систему')
-      navigate('/login')
-      return
-    }
-    if (cart.length === 0) {
-      message.warning('Корзина пуста!')
-      return
-    }
-    try {
-      const res = await fetch(`${BASE_URL}/shop/order`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (!res.ok) throw new Error()
-      const { data } = await res.json()
-      window.location.href = data.checkout_url
-    } catch {
-      message.error('Ошибка при оформлении заказа')
-    }
-  }
-
-  const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
-    const getProductImage = (product: Product) => {
-      if (!product.photo) return default_product_photo
-      try {
-        new URL(product.photo)
-        return product.photo
-      } catch {
-        return `${S3_BASE_URL}/${product.photo.replace(/^\/+/, '')}`
-      }
-    }
-
-  const cardImageStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    padding: screens.xs ? 4 : 8,
-  }
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   return (
     <div
       style={{
         maxWidth: 1200,
-        margin: 'auto',
-        padding: screens.xs ? '16px 8px' : 24,
-        minHeight: 'calc(100vh - 64px)',
+        margin: "auto",
+        padding: screens.xs ? "0 12px" : "0 24px",
       }}
     >
-      <Space style={{ width: '100%', marginBottom: 24 }}>
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate(-1)}
-          type="default"
-          size={screens.xs ? 'middle' : 'large'}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 8,
-          }}
-        />
-        <Title
-          level={screens.xs ? 3 : 1}
-          style={{
-            margin: 0,
-            flex: 1,
-            textAlign: screens.xs ? 'center' : 'left',
-          }}
-        >
-          🛒 Корзина
-        </Title>
-      </Space>
+      <Title
+        level={screens.xs ? 3 : 1}
+        style={{ marginBottom: screens.xs ? 16 : 24, paddingTop: screens.xs ? 16 : 24 }}
+      >
+        Корзина
+      </Title>
 
-      <Row gutter={[screens.xs ? 8 : 16, screens.xs ? 16 : 24]}>
-        {cart.length === 0 ? (
-          <Col span={24} style={{ textAlign: 'center' }}>
-            <div
-              style={{
-                padding: '40px 16px',
-                borderRadius: 8,
-                backgroundColor: '#fafafa',
-                marginBottom: 24,
-              }}
-            >
-              <Title
-                level={4}
-                style={{ color: 'rgba(0,0,0,0.45)', marginBottom: 24 }}
-              >
-                Ваша корзина пуста
-              </Title>
-              <Button
-                type="primary"
-                onClick={() => navigate('/products')}
-                size="large"
-                style={{
-                  width: screens.xs ? '100%' : 240,
-                  height: 48,
-                  fontSize: 16,
-                  borderRadius: 8,
-                }}
-              >
-                Перейти к товарам
-              </Button>
-            </div>
-          </Col>
-        ) : (
-          cart.map((product) => (
-            <Col key={product.id} xs={24} sm={12} md={8} lg={6} xl={6} style={{ display: 'flex' }}>
+      <Button
+        icon={<ArrowLeftOutlined />}
+        onClick={() => navigate("/products")}
+        style={{ marginBottom: 24 }}
+      >
+        Назад к товарам
+      </Button>
+
+      {cart.length === 0 ? (
+        <Paragraph type="secondary" style={{ textAlign: "center", marginTop: 40 }}>
+          Ваша корзина пуста
+        </Paragraph>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {cart.map((p) => (
+            <Col key={p.id} xs={24} sm={12} md={8} lg={6}>
               <Card
                 hoverable
                 cover={
                   <div
                     style={{
-                      position: 'relative',
-                      paddingTop: '75%',
-                      backgroundColor: '#fafafa',
-                      borderTopLeftRadius: 8,
-                      borderTopRightRadius: 8,
-                      overflow: 'hidden',
+                      position: "relative",
+                      paddingTop: "100%",
+                      backgroundColor: "#fff",
+                      border: "1px solid #f0f0f0",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.1)",
                     }}
                   >
                     <img
-                      alt={product.name}
-                      src={getProductImage(product)}
-                      style={cardImageStyle}
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement
-                        target.src = default_product_photo
-                        target.style.objectFit = 'contain'
-                        target.style.padding = '20px'
+                      src={getProductImage(p)}
+                      alt={p.name}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
                       }}
                     />
                   </div>
                 }
                 actions={[
                   <Button
-                    danger
-                    onClick={() => handleRemoveFromCart(product.id)}
-                    key="delete"
-                    size="middle"
+                    type="primary"
                     icon={<DeleteOutlined />}
-                    block
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      height: 40,
-                      fontSize: screens.xs ? 14 : 16,
-                      borderRadius: 8,
+                    danger
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemove(p.id);
                     }}
                   >
-                    {!screens.xs && 'Удалить'}
+                    Удалить
                   </Button>,
                 ]}
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-                bodyStyle={{ padding: screens.xs ? 12 : 16 }}
+                style={{ borderRadius: 8 }}
               >
-                <div>
-                  <Title
-                    level={5}
-                    ellipsis={{ rows: 1 }}
-                    style={{ marginBottom: 8, fontSize: screens.xs ? 16 : 18 }}
-                  >
-                    {product.name}
-                  </Title>
-
-                  <Space size={4} wrap style={{ marginBottom: 8 }}>
-                    {product.category && (
-                      <Tag color="geekblue" style={{ margin: 0, fontSize: screens.xs ? 12 : 14, borderRadius: 4 }}>
-                        {product.category}
-                      </Tag>
-                    )}
-                    {product.manufacturer && (
-                      <Tag color="volcano" style={{ margin: 0, fontSize: screens.xs ? 12 : 14, borderRadius: 4 }}>
-                        {product.manufacturer}
-                      </Tag>
-                    )}
-                  </Space>
-
-                  <Paragraph style={{ fontWeight: 600, fontSize: screens.xs ? 16 : 18 }}>
-                    {parseInt(product.price).toLocaleString()} ₽
-                  </Paragraph>
-                </div>
+                <Title level={5}>{p.name}</Title>
+                <Text strong>{Number(p.price).toLocaleString()} ₽</Text>
               </Card>
             </Col>
-          ))
-        )}
-      </Row>
-
-      {cart.length > 0 && (
-        <div style={{ marginTop: 32, textAlign: 'center' }}>
-          <Button
-            type="primary"
-            size="large"
-            onClick={handleCheckout}
-            style={{
-              width: screens.xs ? '100%' : 320,
-              height: 48,
-              fontSize: 16,
-              borderRadius: 8,
-            }}
-          >
-            Перейти к оформлению
-          </Button>
-        </div>
+          ))}
+        </Row>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default CartPage
+export default CartPage;
