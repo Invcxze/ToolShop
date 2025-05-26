@@ -317,7 +317,7 @@ const ProductPage: React.FC = () => {
                             padding: screens.xs ? '4px 8px' : '6px 15px',
                           }}
                         >
-                          {!screens.xs && "В корзину"}
+                          "В корзину"
                         </Button>
                     ]}
                   >
