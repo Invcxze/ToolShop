@@ -7,7 +7,6 @@ import {
   Typography,
   message,
   Grid,
-  Space,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import default_product_photo from "../assets/guitar.jpeg";
