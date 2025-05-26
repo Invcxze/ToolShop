@@ -129,7 +129,7 @@ REST_FRAMEWORK = {
 
 STATICFILES_STORAGE = "config.storages.StaticStorage"
 DEFAULT_FILE_STORAGE = "config.storages.MediaStorage"
-AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_AUTH = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_USE_SSL = False
