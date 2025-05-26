@@ -56,8 +56,7 @@ interface RecentEntry {
   product: Product
 }
 
-const S3_BASE_URL = 'http://localhost:9000/local-bucket-shop/media'
-
+const S3_BASE_URL = "http://minio:9000/local-bucket-shop/media";
 const getProductImage = (photo: string | null): string => {
   if (!photo) return default_product_photo
   try {

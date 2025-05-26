@@ -15,7 +15,7 @@ import { DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
-const S3_BASE_URL = "http://localhost:9000/local-bucket-shop/media";
+const S3_BASE_URL = "http://minio:9000/local-bucket-shop/media";
 
 interface Product {
   id: number;
