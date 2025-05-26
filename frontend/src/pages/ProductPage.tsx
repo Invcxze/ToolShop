@@ -242,7 +242,17 @@ const ProductPage: React.FC = () => {
                   <Card
                     hoverable
                     cover={
-                      <div style={{ position: "relative", paddingTop: "100%", backgroundColor: "#fafafa" }}>
+                      <div
+                        style={{
+                          position: "relative",
+                          paddingTop: "100%",
+                          backgroundColor: "#fff",
+                          border: "1px solid #f0f0f0",
+                          borderRadius: 8,
+                          overflow: "hidden",
+                          boxShadow: "0 1px 6px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
                         <img
                           src={getProductImage(p)}
                           alt={p.name}
@@ -252,7 +262,7 @@ const ProductPage: React.FC = () => {
                             left: 0,
                             width: "100%",
                             height: "100%",
-                            objectFit: "contain",
+                            objectFit: "cover",
                           }}
                         />
                       </div>
@@ -270,6 +280,7 @@ const ProductPage: React.FC = () => {
                         В корзину
                       </Button>,
                     ]}
+                    style={{ borderRadius: 8 }}
                   >
                     <Title level={5}>{p.name}</Title>
                     <Text strong>{p.price.toLocaleString()} ₽</Text>
