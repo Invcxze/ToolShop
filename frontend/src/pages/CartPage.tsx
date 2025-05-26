@@ -3,7 +3,7 @@ import { Button, Card, Row, Col, Typography, message, Tag, Grid } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import default_product_photo from '../assets/guitar.jpeg'
 const BASE_URL = import.meta.env.VITE_API_BASE_URL
-
+import { DeleteOutlined } from '@ant-design/icons'
 const { Title, Paragraph } = Typography
 const { useBreakpoint } = Grid
 
@@ -174,15 +174,22 @@ const CartPage: React.FC = () => {
                 }
                 actions={[
                   <Button
-                    danger
-                    onClick={() => handleRemoveFromCart(product.id)}
-                    key="delete"
-                    size={screens.xs ? 'small' : 'middle'}
-                    block={screens.xs}
-                    icon={<i className="anticon anticon-delete" />}
-                  >
-                    Удалить
-                  </Button>,
+                      danger
+                      onClick={() => handleRemoveFromCart(product.id)}
+                      key="delete"
+                      size={screens.xs ? "small" : "middle"}
+                      icon={<DeleteOutlined />}
+                      block={screens.xs}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: screens.xs ? 0 : 8,
+                        minWidth: screens.xs ? 40 : undefined,
+                      }}
+                    >
+                      {!screens.xs && 'Удалить'}
+                    </Button>
                 ]}
                 bodyStyle={{
                   padding: screens.xs ? 12 : 16,

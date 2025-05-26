@@ -121,7 +121,11 @@ const ProductPage: React.FC = () => {
   };
 
   const handleAddToCart = async (id: number) => {
-    if (!token) return message.error("Авторизуйтесь!");
+    if (!token) {
+      message.error("Авторизуйтесь!");
+      navigate('/login');
+      return;
+    }
     try {
       const res = await fetch(`${BASE_URL}/shop/cart/${id}`, {
         method: "POST",
@@ -296,16 +300,24 @@ const ProductPage: React.FC = () => {
                       </div>
                     }
                     actions={[
-                      <Button
-                        type="primary"
-                        block
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddToCart(p.id);
-                        }}
-                      >
-                        В корзину
-                      </Button>,
+                  <Button
+                    type="primary"
+                    block
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(p.id);
+                    }}
+                    size={screens.xs ? "small" : "middle"}
+                    icon={screens.xs ? <ShoppingCartOutlined /> : undefined}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    {!screens.xs && "В корзину"}
+                  </Button>
                     ]}
                   >
                     <Card.Meta
