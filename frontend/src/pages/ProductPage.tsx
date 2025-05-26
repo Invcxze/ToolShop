@@ -300,26 +300,25 @@ const ProductPage: React.FC = () => {
                       </div>
                     }
                     actions={[
-                        <Button
-                          type="primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToCart(p.id);
-                          }}
-                          size={screens.xs ? 'middle' : 'large'}
-                          icon={<ShoppingCartOutlined />}
-                          style={{
-                            width: screens.xs ? 'auto' : '100%',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: screens.xs ? 'flex-start' : 'center',
-                            gap: 8,
-                            padding: screens.xs ? '4px' : '8px',
-                          }}
-                        >
+                      <Button
+                        type="primary"
+                        block
+                        icon={<ShoppingCartOutlined />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(p.id);
+                        }}
+                        size={screens.xs ? "middle" : "large"}
+                        style={{
+                          fontWeight: 500,
+                          height: screens.xs ? 36 : 40,
+                          fontSize: screens.xs ? 14 : 16,
+                        }}
+                      >
                         Добавить в корзину
-                        </Button>
+                      </Button>,
                     ]}
+
                   >
                     <Card.Meta
                       title={p.name}

@@ -173,25 +173,26 @@ const CartPage: React.FC = () => {
                   </div>
                 }
                 actions={[
-                  <Button
-                      danger
-                      onClick={() => handleRemoveFromCart(product.id)}
-                      key="delete"
-                      size={screens.xs ? "small" : "middle"}
-                      icon={<DeleteOutlined />}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: screens.xs ? "center" : "flex-start",
-                        gap: 8,
-                        padding: screens.xs ? "0 8px" : "0 16px",
-                        height: screens.xs ? 32 : 40,
-                      }}
-                    >
-                      {!screens.xs && "Удалить"}
-                   </Button>
-                ]}
+                      <Button
+                        danger
+                        onClick={() => handleRemoveFromCart(product.id)}
+                        key="delete"
+                        size={screens.xs ? 'small' : 'middle'}
+                        icon={<DeleteOutlined />}
+                        style={{
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          padding: 0,
+                          height: screens.xs ? 32 : 40,
+                        }}
+                      >
+                        {!screens.xs && <span>Удалить</span>}
+                      </Button>
+                    ]}
+
                 bodyStyle={{
                   padding: screens.xs ? 12 : 16,
                   height: screens.xs ? 'auto' : 240,
