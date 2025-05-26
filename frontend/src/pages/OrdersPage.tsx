@@ -167,7 +167,16 @@ const OrdersPage: React.FC = () => {
                       }}
                     />
 
-                    <Title level={5} style={{ marginBottom: 8 }}>
+                    <Title
+                      level={5}
+                      style={{
+                        marginBottom: 8,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                      title={product.name}
+                    >
                       {product.name}
                     </Title>
 
