@@ -182,7 +182,7 @@ const ProductPage: React.FC = () => {
                   addonBefore="До"
                   type="number"
                   value={price[1]}
-                  onChange={(e) => setPrice([price[0], Number(e.target.value) || 1_000_000])}
+                  onChange={(e) => setPrice([price[0], Number(e.target.value) || 1_000])}
                   onBlur={() => applyFilters()}
                 />
               </Col>

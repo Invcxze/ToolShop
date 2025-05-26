@@ -200,12 +200,11 @@ const CartPage: React.FC = () => {
               key={product.id}
               xs={24}
               sm={12}
-              md={12}
-              lg={8}
+              md={8}
+              lg={6}
               xl={6}
               style={{
-                marginBottom: screens.xs ? 8 : 16,
-                padding: screens.xs ? '0 4px' : '0 8px',
+                display: 'flex',
               }}
             >
               <Card
@@ -255,14 +254,14 @@ const CartPage: React.FC = () => {
                     {!screens.xs && 'Удалить'}
                   </Button>,
                 ]}
-                styles={{
-                  body: {
-                    padding: screens.xs ? 12 : 16,
-                    height: 'auto',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  },
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+                bodyStyle={{
+                  padding: screens.xs ? 12 : 16,
                 }}
               >
                 <div>
