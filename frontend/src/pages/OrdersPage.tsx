@@ -5,7 +5,6 @@ import {
   Typography,
   message,
   Collapse,
-  List,
   Tag,
   Grid
 } from 'antd'
